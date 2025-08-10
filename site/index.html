@@ -3,7 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Text Gibberifier</title>
+    <title>Gibberifier</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎲</text></svg>">
 
     <style>
       body {
@@ -13,6 +14,25 @@
         margin: 0;
         padding: 20px;
         line-height: 1.6;
+        position: relative;
+      }
+      
+      .logo {
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        z-index: 1000;
+        opacity: 0.8;
+        transition: opacity 0.3s ease;
+      }
+      
+      .logo:hover {
+        opacity: 1;
+      }
+      
+      .logo img {
+        height: 40px;
+        width: auto;
       }
       
       .container {
@@ -255,8 +275,12 @@
     </style>
   </head>
   <body>
+    <a href="https://geneplore.com" class="logo" target="_blank" title="Visit Geneplore">
+      <img src="geneplore.png" alt="Geneplore Logo">
+    </a>
+    
     <div class="container">
-      <h1>🔤 Text Gibberifier</h1>
+      <h1>🎲 Text Gibberifier</h1>
       <p class="subtitle">Transform your text with invisible Unicode characters</p>
       
       <div class="input-group">
