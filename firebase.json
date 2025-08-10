@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "public": "site",
+    "site": "cheatingstopper",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
