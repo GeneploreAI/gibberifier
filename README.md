@@ -8,3 +8,7 @@
 **Use cases:** Anti-plagiarism, text obfuscation for LLM scrapers, or just for fun!
 
 Even just one word's worth of gibberified text is enough to block something like Flint AI from grading a session.
+
+
+## Chrome Extension:
+A Chrome extension is also available that allows you to gibberify selected text directly on any webpage. Check out the [extension/README.md](extension/README.md) for installation and usage instructions. It is currently pending review on the Chrome Web Store and can be installed manually in developer mode for now.
