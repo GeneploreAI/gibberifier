@@ -40,7 +40,3 @@ The extension inserts invisible zero-width Unicode characters between each chara
 - Works best on text up to ~500 characters
 - Some AI models will crash or fail to process gibberified text
 - The gibberified text looks identical to humans but is much longer due to invisible characters
-
-## Icons
-
-You'll need to add icon files (icon16.png, icon48.png, icon128.png) to the extension folder for the extension to display properly in Chrome.
