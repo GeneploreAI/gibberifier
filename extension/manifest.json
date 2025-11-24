@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Gibberifier",
   "version": "1.0.0",
-  "description": "Right-click selected text to convert it into gibberish using invisible Unicode characters",
+  "description": "Right-click selected text or press Alt+G to convert it into gibberish using invisible Unicode characters",
   "permissions": [
     "contextMenus"
   ],
