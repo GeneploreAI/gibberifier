@@ -161,7 +161,7 @@ function gibberifyText() {
       unicodeRepresentation += `[${charUnicode}]`;
       
       // Don't add empty characters after the last character or after spaces
-      if (i < inputText.length - 1 && char !== ' ') {
+      if (i < inputText.length - 1) {
         // Add 150-200 random empty characters (same range as Python script)
         const numEmptyChars = getRandomInt(150, 200);
         
@@ -175,11 +175,6 @@ function gibberifyText() {
           unicodeRepresentation += ` [${unicode}]`;
         }
         
-        // Add a line break after each original character for readability
-        unicodeRepresentation += '\n';
-      } else if (char === ' ') {
-        // Just add a line break for spaces in Unicode representation
-        unicodeRepresentation += '\n';
       }
     }
     
