@@ -373,14 +373,6 @@ function showNotification(message) {
   }, 3000);
 }
 
-// Listen for keyboard shortcut (Alt + G)
-document.addEventListener('keydown', (event) => {
-  if (event.altKey && event.key.toLowerCase() === 'g') {
-    event.preventDefault();
-    processSelection();
-  }
-});
-
 // Listen for messages from background script (context menu)
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'gibberify' && request.text) {
