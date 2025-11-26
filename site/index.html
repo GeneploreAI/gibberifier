@@ -198,6 +198,84 @@
         font-weight: bold;
       }
       
+      .slider-group {
+        margin: 15px 0;
+        padding: 12px 15px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        border: 1px solid #e9ecef;
+      }
+      
+      .slider-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      
+      .slider-label {
+        font-weight: bold;
+        color: #555;
+        font-size: 14px;
+        margin: 0;
+      }
+      
+      .slider-value {
+        font-size: 14px;
+        font-weight: bold;
+        padding: 2px 8px;
+        border-radius: 3px;
+      }
+      
+      .slider-value.low {
+        color: #27ae60;
+      }
+      
+      .slider-value.medium {
+        color: #f39c12;
+      }
+      
+      .slider-value.high {
+        color: #e74c3c;
+      }
+      
+      .slider-value.extreme {
+        color: #c0392b;
+      }
+      
+      .intensity-slider {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 100%;
+        height: 8px;
+        border-radius: 4px;
+        background: linear-gradient(to right, #27ae60 0%, #27ae60 20%, #f39c12 40%, #e74c3c 60%, #c0392b 100%);
+        outline: none;
+        cursor: pointer;
+      }
+      
+      .intensity-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #555;
+        cursor: pointer;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+      
+      .intensity-slider::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: white;
+        border: 2px solid #555;
+        cursor: pointer;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      }
+      
       .examples-section {
         margin-top: 40px;
         padding-top: 30px;
@@ -331,6 +409,14 @@
         <textarea id="inputText" placeholder="Enter your text here to gibberify..."></textarea>
         <div id="charWarning" class="char-warning" style="display: none;"></div>
         <div id="charCount" class="char-count"></div>
+      </div>
+      
+      <div class="slider-group">
+        <div class="slider-header">
+          <label class="slider-label" for="intensitySlider">Intensity:</label>
+          <div id="sliderValue" class="slider-value">100%</div>
+        </div>
+        <input type="range" min="10" max="500" value="100" class="intensity-slider" id="intensitySlider">
       </div>
       
       <div class="button-container">
