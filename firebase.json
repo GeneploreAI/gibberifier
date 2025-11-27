@@ -11,6 +11,10 @@
       {
         "source": "privacy",
         "destination": "/privacy.html"
+      },
+      {
+        "source": "example",
+        "destination": "/example.html"
       }
     ]
   }
