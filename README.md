@@ -13,3 +13,7 @@ Even just one word's worth of gibberified text is enough to block something like
 ## Chrome Extension:
 A Chrome extension is also available that allows you to gibberify selected text directly on any webpage.
 [Add it here!](https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en)
+
+## Firefox Extension:
+A Firefox extension is also available that does the exact same thing as the Chrome extension.
+[Add it here!](https://addons.mozilla.org/en-US/firefox/addon/gibberifier/)
