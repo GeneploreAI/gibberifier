@@ -11,4 +11,5 @@ Even just one word's worth of gibberified text is enough to block something like
 
 
 ## Chrome Extension:
-A Chrome extension is also available that allows you to gibberify selected text directly on any webpage. Check out the [extension/README.md](extension/README.md) for installation and usage instructions. It is currently pending review on the Chrome Web Store and can be installed manually in developer mode for now.
+A Chrome extension is also available that allows you to gibberify selected text directly on any webpage.
+[Add it here!](https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en)
