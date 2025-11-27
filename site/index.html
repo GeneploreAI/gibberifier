@@ -36,6 +36,32 @@
         width: auto;
       }
       
+      .extension-button {
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        z-index: 1000;
+        background: white;
+        padding: 0;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        display: block;
+        border: 1px solid #e0e0e0;
+      }
+      
+      .extension-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      }
+      
+      .extension-button img {
+        display: block;
+        height: 60px;
+        width: auto;
+      }
+      
       .container {
         max-width: 800px;
         margin: 0 auto;
@@ -398,6 +424,10 @@
   <body>
     <a href="https://geneplore.com" class="logo" target="_blank" title="Visit Geneplore">
       <img src="geneplore.png" alt="Geneplore Logo">
+    </a>
+    
+    <a href="https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en" class="extension-button" target="_blank" rel="noopener noreferrer" title="Install Chrome Extension">
+      <img src="https://developer.chrome.com/static/docs/webstore/branding/image/HRs9MPufa1J1h5glNhut.png" alt="Available in the Chrome Web Store">
     </a>
     
     <div class="container">
