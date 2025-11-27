@@ -1,5 +1,5 @@
 # gibberifier
-### Human-generated idea to break LLMs vibecoded into a website on a Sunday afternoon in the summer.
+### A human-generated idea to break LLMs vibecoded into a website on a Sunday afternoon in the summer.
 
 **How it works:** This tool inserts invisible zero-width Unicode characters between each character of your input text. The text will look the same but will be much longer and can help stop AI plagarism. It also helps to waste tokens, causing users to run into ratelimits faster.
 
