@@ -39,16 +39,16 @@
       }
       
       .extension-button {
-        position: fixed;
+        position: absolute;
         top: 15px;
         right: 15px;
         z-index: 1000;
         background: white;
         padding: 0;
-        border-radius: 8px;
+        border-radius: 6px;
         text-decoration: none;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         display: block;
         border: 1px solid #e0e0e0;
       }
@@ -60,7 +60,7 @@
       
       .extension-button img {
         display: block;
-        height: 60px;
+        height: 40px;
         width: auto;
       }
       
@@ -71,6 +71,7 @@
         padding: 30px;
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
       }
       
       h1 {
@@ -411,6 +412,81 @@
         vertical-align: middle;
         margin-right: 8px;
       }
+      
+      /* Mobile responsive styles */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+        
+        .extension-button {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+        }
+        
+        .extension-button img {
+          height: 35px;
+        }
+        
+        .container {
+          padding: 20px 15px;
+          position: relative;
+        }
+        
+        h1 {
+          font-size: 1.8em;
+        }
+        
+        .footer-links {
+          flex-direction: column;
+          gap: 15px;
+        }
+        
+        .logo {
+          margin-right: 0;
+        }
+        
+        button {
+          padding: 12px 24px;
+          font-size: 16px;
+          width: 100%;
+          max-width: 300px;
+        }
+        
+        .example-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .container {
+          padding: 15px 12px;
+        }
+        
+        h1 {
+          font-size: 1.5em;
+        }
+        
+        .subtitle {
+          font-size: 14px;
+        }
+        
+        textarea {
+          font-size: 14px;
+          padding: 12px;
+        }
+        
+        .info {
+          font-size: 13px;
+          padding: 12px;
+        }
+        
+        .github-button {
+          padding: 10px 20px;
+          font-size: 14px;
+        }
+      }
     </style>
   </head>
 
@@ -430,11 +506,11 @@
 
 
   <body>
-    <a href="https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en" class="extension-button" target="_blank" rel="noopener noreferrer" title="Install Chrome Extension">
-      <img src="https://developer.chrome.com/static/docs/webstore/branding/image/HRs9MPufa1J1h5glNhut.png" alt="Available in the Chrome Web Store">
-    </a>
-    
     <div class="container">
+      <a href="https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en" class="extension-button" target="_blank" rel="noopener noreferrer" title="Install Chrome Extension">
+        <img src="https://developer.chrome.com/static/docs/webstore/branding/image/HRs9MPufa1J1h5glNhut.png" alt="Available in the Chrome Web Store">
+      </a>
+      
       <h1>🎲 Text Gibberifier</h1>
       <p class="subtitle">Block AIs from reading your text with invisible Unicode characters while preserving meaning for humans.</p>
       
