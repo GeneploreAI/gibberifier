@@ -43,16 +43,16 @@
       }
       
       .extension-button {
-        position: fixed;
+        position: absolute;
         top: 15px;
         right: 15px;
         z-index: 1000;
         background: white;
         padding: 0;
-        border-radius: 8px;
+        border-radius: 6px;
         text-decoration: none;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         display: block;
         border: 1px solid #e0e0e0;
       }
@@ -64,7 +64,7 @@
       
       .extension-button img {
         display: block;
-        height: 60px;
+        height: 40px;
         width: auto;
       }
       
@@ -75,6 +75,7 @@
         padding: 30px;
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        position: relative;
       }
       
       h1 {
@@ -415,6 +416,106 @@
         vertical-align: middle;
         margin-right: 8px;
       }
+      
+      .detailed-explanation {
+        margin-top: 12px;
+        font-size: 13px;
+      }
+      
+      .detailed-explanation summary {
+        cursor: pointer;
+        color: #3498db;
+        font-weight: 500;
+        opacity: 0.8;
+        transition: opacity 0.2s;
+      }
+      
+      .detailed-explanation summary:hover {
+        opacity: 1;
+      }
+      
+      .detailed-explanation p {
+        margin: 10px 0;
+        padding-left: 10px;
+        border-left: 2px solid #bee5eb;
+        color: #555;
+        line-height: 1.6;
+      }
+      
+      /* Mobile responsive styles */
+      @media (max-width: 768px) {
+        body {
+          padding: 10px;
+        }
+        
+        .extension-button {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+        }
+        
+        .extension-button img {
+          height: 35px;
+        }
+        
+        .container {
+          padding: 20px 15px;
+          position: relative;
+        }
+        
+        h1 {
+          font-size: 1.8em;
+        }
+        
+        .footer-links {
+          flex-direction: column;
+          gap: 15px;
+        }
+        
+        .logo {
+          margin-right: 0;
+        }
+        
+        button {
+          padding: 12px 24px;
+          font-size: 16px;
+          width: 100%;
+          max-width: 300px;
+        }
+        
+        .example-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .container {
+          padding: 15px 12px;
+        }
+        
+        h1 {
+          font-size: 1.5em;
+        }
+        
+        .subtitle {
+          font-size: 14px;
+        }
+        
+        textarea {
+          font-size: 14px;
+          padding: 12px;
+        }
+        
+        .info {
+          font-size: 13px;
+          padding: 12px;
+        }
+        
+        .github-button {
+          padding: 10px 20px;
+          font-size: 14px;
+        }
+      }
     </style>
   </head>
 
@@ -434,11 +535,11 @@
 
 
   <body>
-    <a href="https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en" class="extension-button" target="_blank" rel="noopener noreferrer" title="Install Chrome Extension">
-      <img src="https://developer.chrome.com/static/docs/webstore/branding/image/HRs9MPufa1J1h5glNhut.png" alt="Available in the Chrome Web Store">
-    </a>
-    
     <div class="container">
+      <a href="https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en" class="extension-button" target="_blank" rel="noopener noreferrer" title="Install Chrome Extension">
+        <img src="https://developer.chrome.com/static/docs/webstore/branding/image/HRs9MPufa1J1h5glNhut.png" alt="Available in the Chrome Web Store">
+      </a>
+      
       <h1>🎲 Text Gibberifier</h1>
       <p class="subtitle">Block AIs from reading your text with invisible Unicode characters while preserving meaning for humans.</p>
       
@@ -475,7 +576,13 @@
       
       <div class="info">
         <strong>How it works:</strong> This tool inserts invisible zero-width Unicode characters between each character of your input text. The text will look the same but will be much longer and can help stop AI plagarism. It also helps to waste tokens, causing users to run into ratelimits faster.
-        <br><br>
+        <details class="detailed-explanation">
+          <summary>Detailed Explanation</summary>
+          <p>LLM tokenizers don't have dedicated tokens for most Unicode characters—especially obscure zero-width characters. Instead, they fall back to byte-level encoding, splitting each Unicode character into its raw UTF-8 bytes. A single zero-width character can become 3-4 byte tokens.</p>
+          <p>When you gibberify text, the AI doesn't see "Hello"—it sees something like "H [byte] [byte] [byte] e [byte] [byte] [byte] l [byte] [byte] [byte]..." The model receives a flood of seemingly random byte tokens that overwhelm its context window and break its ability to understand the actual message.</p>
+          <p>This exploits a fundamental limitation: tokenizers are optimized for common text, not adversarial Unicode sequences.</p>
+        </details>
+        <br>
         <strong>How to use:</strong>  This tool works best when gibberifying the most important parts of an essay prompt, up to about 500 characters. This makes it harder for the AI to detect while still functioning well in Google Docs. Some AI models will crash or fail to process the gibberified text, while others will respond with confusion or simply ignore everything inside the gibberified text.
         <br><br>
         <strong>Use cases:</strong> Anti-plagiarism, text obfuscation for LLM scrapers, or just for fun!
@@ -544,10 +651,6 @@
     </div>
 
     <div class="footer-links">
-      <a href="https://geneplore.com" class="logo" target="_blank" title="Visit Geneplore">
-        <span class="logo-text">Created by</span>
-        <img src="geneplore.png" alt="Geneplore Logo">
-      </a>
       <a href="https://github.com/GeneploreAI/gibberifier" class="github-button" target="_blank" rel="noopener noreferrer">
         <svg height="20" width="20" viewBox="0 0 16 16" fill="currentColor">
           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
