@@ -1,7 +1,7 @@
 // Slider value conversion functions
 function percentageToCharCount(percentage) {
-  // 100% = 250 chars, scale linearly
-  return Math.round((percentage / 100) * 250);
+  // 100% = 375 chars, scale linearly (50% more intense than before)
+  return Math.round((percentage / 100) * 375);
 }
 
 function getCharCountRange(baseCount) {
@@ -372,10 +372,48 @@ function gibberifyText() {
   }, 100); // Small delay to show loading state
 }
 
+// Track whether user has manually adjusted the slider
+let userHasTouchedSlider = false;
+
+// Calculate automatic intensity based on character count
+// 500% at 0 chars, 100% at 250 chars with exponential backoff
+function calculateAutoIntensity(charCount) {
+  if (charCount >= 250) {
+    return 100;
+  }
+  
+  // Exponential decay formula: intensity = 100 + 400 * e^(-k * charCount)
+  // We want it to reach 100% at 250 chars
+  // 100 = 100 + 400 * e^(-k * 250)
+  // 0 = 400 * e^(-k * 250)
+  // We'll use k ≈ 0.0138 to get very close to 100 at 250
+  const k = 0.0138;
+  const intensity = 100 + 400 * Math.exp(-k * charCount);
+  
+  return Math.round(intensity);
+}
+
+// Update slider based on text input (if user hasn't touched it)
+function updateAutoIntensity() {
+  if (!userHasTouchedSlider) {
+    const inputText = document.getElementById('inputText');
+    const slider = document.getElementById('intensitySlider');
+    const charCount = inputText.value.length;
+    
+    const autoIntensity = calculateAutoIntensity(charCount);
+    slider.value = autoIntensity;
+    updateSliderDisplay();
+  }
+}
+
 // Allow Enter key to trigger gibberification
 document.addEventListener('DOMContentLoaded', function() {
   const inputText = document.getElementById('inputText');
   const slider = document.getElementById('intensitySlider');
+  
+  // Set initial intensity to 500%
+  slider.value = 500;
+  updateSliderDisplay();
   
   inputText.addEventListener('keypress', function(event) {
     if (event.key === 'Enter' && event.ctrlKey) {
@@ -383,18 +421,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Add input event listener for real-time character count validation
-  inputText.addEventListener('input', validateCharacterCount);
+  // Add input event listener for real-time character count validation and auto intensity
+  inputText.addEventListener('input', function() {
+    validateCharacterCount();
+    updateAutoIntensity();
+  });
   
-  // Add slider event listener
-  slider.addEventListener('input', updateSliderDisplay);
+  // Add slider event listener and track user interaction
+  slider.addEventListener('input', function() {
+    userHasTouchedSlider = true;
+    updateSliderDisplay();
+  });
 
   // Auto-focus on the input field when page loads
   inputText.focus();
   
   // Initial character count validation
   validateCharacterCount();
-  
-  // Initial slider display
-  updateSliderDisplay();
 });
