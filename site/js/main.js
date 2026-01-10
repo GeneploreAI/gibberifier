@@ -51,7 +51,7 @@ function validateCharacterCount() {
     charCount.classList.add('warning');
     
     // Show appropriate warning message
-    const warningMessage = `⚠️ Too long! Remove ${length - 500} characters for optimal gibberification.`;
+    const warningMessage = `⚠️ Too long! Remove ${length - 500} characters to avoid diluting the invisible characters. Select the most important part of your text and input that instead.`;
     
     charWarning.textContent = warningMessage;
     charWarning.style.display = 'block';
@@ -64,7 +64,7 @@ function validateCharacterCount() {
 }
 
 // iPad Mode state
-let isIPadMode = false;
+let isIPadMode = true;
 
 // Zero-width Unicode characters (same as in the Python script)
 const emptyChars = [
@@ -100,16 +100,16 @@ const emptyChars = [
 // Safe characters for iPad Mode (excludes variation selectors and TAG characters)
 // Only includes low and medium-risk characters that don't show ??? on iOS
 const emptyCharsSafe = [
-  '\u200B',  // ZERO WIDTH SPACE - Low Risk
-  //'\u200C',  // ZERO WIDTH NON-JOINER - Low Risk
-  //'\u200D',  // ZERO WIDTH JOINER - Low Risk
-  //'\u2060',  // WORD JOINER - Low Risk
-  '\uFEFF',  // ZERO WIDTH NO-BREAK SPACE (BOM) - Low Risk
-  '\u2061',  // FUNCTION APPLICATION - Medium Risk
-  '\u2062',  // INVISIBLE TIMES - Medium Risk
-  '\u2063',  // INVISIBLE SEPARATOR - Medium Risk
-  '\u2064',  // INVISIBLE PLUS - Medium Risk
-  // '\u034F',  // COMBINING GRAPHEME JOINER - High Risk
+  '\u200B',  // ZERO WIDTH SPACE
+  //'\u200C',  // ZERO WIDTH NON-JOINER 
+  //'\u200D',  // ZERO WIDTH JOINER 
+  //'\u2060',  // WORD JOINER 
+  '\uFEFF',  // ZERO WIDTH NO-BREAK SPACE (BOM) 
+  '\u2061',  // FUNCTION APPLICATION 
+  '\u2062',  // INVISIBLE TIMES
+  '\u2063',  // INVISIBLE SEPARATOR 
+  '\u2064',  // INVISIBLE PLUS
+  // '\u034F',  // COMBINING GRAPHEME JOINER 
   '\uFE00',  // VARIATION SELECTOR-1
   '\uFE01',  // VARIATION SELECTOR-2
   '\uFE02',  // VARIATION SELECTOR-3
@@ -125,7 +125,7 @@ const emptyCharsSafe = [
   '\uFE0C',  // VARIATION SELECTOR-13
   '\uFE0D',  // VARIATION SELECTOR-14
   '\uFE0E',  // VARIATION SELECTOR-15
-  //'\uFE0F',  // VARIATION SELECTOR-16
+  //'\uFE0F',  // VARIATION SELECTOR-16 this one causes issues on iOS idk why
   
 
 
@@ -354,7 +354,20 @@ function updateAutoIntensity() {
 // Toggle iPad Mode
 function toggleIPadMode() {
   const toggle = document.getElementById('ipadModeToggle');
-  isIPadMode = toggle.checked;
+  const newState = toggle.checked;
+  const warningBox = document.getElementById('ipadWarningBox');
+  
+  // Show warning when turning off iPad mode (only if not previously dismissed)
+  if (!newState && isIPadMode) {
+    const warningDismissed = localStorage.getItem('ipadWarningDismissed');
+    if (warningDismissed !== 'true') {
+      warningBox.classList.add('show');
+    }
+  } else {
+    warningBox.classList.remove('show');
+  }
+  
+  isIPadMode = newState;
   
   // Save preference to localStorage
   localStorage.setItem('ipadMode', isIPadMode ? 'true' : 'false');
@@ -368,16 +381,27 @@ function toggleIPadMode() {
   }
 }
 
+// Close iPad warning box
+function closeIPadWarning() {
+  const warningBox = document.getElementById('ipadWarningBox');
+  warningBox.classList.remove('show');
+  localStorage.setItem('ipadWarningDismissed', 'true');
+}
+
 // Allow Enter key to trigger gibberification
 document.addEventListener('DOMContentLoaded', function() {
   const inputText = document.getElementById('inputText');
   const slider = document.getElementById('intensitySlider');
   const ipadToggle = document.getElementById('ipadModeToggle');
   
-  // Load saved iPad mode preference
+  // Load saved iPad mode preference (default to true if not set)
   const savedIPadMode = localStorage.getItem('ipadMode');
-  if (savedIPadMode === 'true') {
+  if (savedIPadMode === null || savedIPadMode === 'true') {
     ipadToggle.checked = true;
+    isIPadMode = true;
+  } else {
+    ipadToggle.checked = false;
+    isIPadMode = false;
   }
   
   // Set initial intensity to 500%

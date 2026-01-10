@@ -309,6 +309,57 @@
         background: #f0f8ff;
         border-radius: 4px;
         border: 1px solid #bee5eb;
+        position: relative;
+      }
+      
+      .ipad-warning-box {
+        position: absolute;
+        right: 100%;
+        margin-right: 10px;
+        background: #fff3cd;
+        border: 1px solid #ffc107;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #856404;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        display: none;
+        align-items: center;
+        gap: 8px;
+        opacity: 0;
+        transition: opacity 0.3s ease-in;
+      }
+      
+      .ipad-warning-box.show {
+        display: flex;
+        animation: fadeIn 0.3s ease-in forwards;
+      }
+      
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      
+      .ipad-warning-close {
+        background: none;
+        border: none;
+        color: #856404;
+        font-size: 16px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+        margin-left: 4px;
+        font-weight: bold;
+        opacity: 0.7;
+      }
+      
+      .ipad-warning-close:hover {
+        opacity: 1;
       }
       
       .toggle-label {
@@ -604,7 +655,11 @@
         <div class="input-label-row">
           <label for="inputText">Input Text:</label>
           <div class="toggle-group">
-            <label class="toggle-label" for="ipadModeToggle" title="Only adds characters to the text that are invisible on iOS">🍎 iPad Mode: <span style="color: #6c757d;">OFF</span></label>
+            <div id="ipadWarningBox" class="ipad-warning-box">
+              <span>⚠️ Characters may appear as ??? on iOS/iPadOS</span>
+              <button class="ipad-warning-close" onclick="closeIPadWarning()" aria-label="Close">×</button>
+            </div>
+            <label class="toggle-label" for="ipadModeToggle" title="Only adds characters to the text that are invisible on iOS">iPad Mode: <span style="color: #6c757d;">OFF</span></label>
             <label class="toggle-switch">
               <input type="checkbox" id="ipadModeToggle">
               <span class="toggle-slider"></span>
@@ -646,7 +701,7 @@
         <details class="detailed-explanation">
           <summary>Detailed Explanation</summary>
           <p>LLMs (Large Language Models) like ChatGPT don't actually read text like we do. They only understand words translated into lists of numbers called "tokens." Every word in the English language can be split up into these tokens, and each token is associated with the meaning of that word (or the parts of the word) in the model's training. However, invisible Unicode characters like the ones Gibberifier uses aren't used in real text often enough to warrant their own tokens, so the tokenizer (the algorithm that turns words into tokens) just represents them as the raw UTF-8 byte data that they are stored as in computers. (something like "U+FE12")</p>
-          <p>When you gibberify text, the AI doesn't see "Hello" - it sees something like "H[U+FE12][U+FEB2][U+FE82]e[U+FB12][U+FE18][U+FE12]l[U+FE18][U+FE12][U+FB12]..." The model receives a bunch of seemingly random byte tokens that are too long for its "context window" (the amount of text it can read in one go, which is normally too high to worry about) and break its ability to understand the actual message.</p>
+          <p>When you gibberify text, the AI doesn't see "Hello" - it sees something like "H[U+FE12][U+FEB2][U+FE82]e[U+FB12][U+FE18][U+FE12]l[U+FE18][U+FE12][U+FB12]..." The model receives a bunch of seemingly random byte tokens that are too long for its "context window" (the amount of text it can read in one go, which is normally too high to worry about) and break the tokenizer's ability to join whole words together into tokens. Imagine if you could only read one letter at a time but have to sort through a bunch of meaningless numbers.</p>
           <p>Still curious? Check out <a href="https://platform.openai.com/tokenizer">OpenAI's Tokenizer Demo</a> or talk to Will Patti.</p>
         </details>
         <br>
