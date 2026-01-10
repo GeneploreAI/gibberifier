@@ -301,6 +301,81 @@
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
       }
       
+      .toggle-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 8px;
+        background: #f0f8ff;
+        border-radius: 4px;
+        border: 1px solid #bee5eb;
+      }
+      
+      .toggle-label {
+        font-weight: 500;
+        color: #555;
+        font-size: 12px;
+        margin: 0;
+        white-space: nowrap;
+      }
+      
+      .input-label-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+      }
+      
+      .input-label-row label {
+        margin-bottom: 0;
+      }
+      
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 18px;
+        flex-shrink: 0;
+      }
+      
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      
+      .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.3s;
+        border-radius: 18px;
+      }
+      
+      .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 14px;
+        width: 14px;
+        left: 2px;
+        bottom: 2px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+      }
+      
+      input:checked + .toggle-slider {
+        background-color: #28a745;
+      }
+      
+      input:checked + .toggle-slider:before {
+        transform: translateX(18px);
+      }
+      
       .examples-section {
         margin-top: 40px;
         padding-top: 30px;
@@ -526,7 +601,16 @@
       <p class="subtitle">Block AIs from reading your text with invisible Unicode characters while preserving meaning for humans.</p>
       
       <div class="input-group">
-        <label for="inputText">Input Text:</label>
+        <div class="input-label-row">
+          <label for="inputText">Input Text:</label>
+          <div class="toggle-group">
+            <label class="toggle-label" for="ipadModeToggle" title="Only adds characters to the text that are invisible on iOS">🍎 iPad Mode: <span style="color: #6c757d;">OFF</span></label>
+            <label class="toggle-switch">
+              <input type="checkbox" id="ipadModeToggle">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
         <textarea id="inputText" placeholder="Enter your text here to gibberify..."></textarea>
         <div id="charWarning" class="char-warning" style="display: none;"></div>
         <div id="charCount" class="char-count"></div>
@@ -540,6 +624,7 @@
         <input type="range" min="10" max="500" value="100" class="intensity-slider" id="intensitySlider">
       </div>
       
+
       <div class="button-container">
         <button onclick="gibberifyText()">🎲 Gibberify Text</button>
       </div>
@@ -551,25 +636,25 @@
       
       <div class="input-group">
         <label for="unicodeView">Unicode Characters (What AI Sees):</label>
-        <textarea id="unicodeView" readonly placeholder="Unicode representation will appear here..."></textarea>
+        <textarea id="unicodeView" readonly placeholder="Unicode will appear here..."></textarea>
       </div>
       
       <div id="stats" class="stats" style="display: none;"></div>
       
       <div class="info">
-        <strong>How it works:</strong> This tool inserts invisible zero-width Unicode characters between each character of your input text. The text will look the same but will be much longer and can help stop AI plagarism. It also helps to waste tokens, causing users to run into ratelimits faster.
+        <strong>How it works:</strong> This tool inserts thousands of invisible zero-width Unicode characters between each character of your input text. The text will look the same but will be much longer and won't load into most LLM-based chatbots.
         <details class="detailed-explanation">
           <summary>Detailed Explanation</summary>
-          <p>LLM tokenizers don't have dedicated tokens for most Unicode characters—especially obscure zero-width characters. Instead, they fall back to byte-level encoding, splitting each Unicode character into its raw UTF-8 bytes. A single zero-width character can become 3-4 byte tokens.</p>
-          <p>When you gibberify text, the AI doesn't see "Hello"—it sees something like "H [byte] [byte] [byte] e [byte] [byte] [byte] l [byte] [byte] [byte]..." The model receives a flood of seemingly random byte tokens that overwhelm its context window and break its ability to understand the actual message.</p>
-          <p>This exploits a fundamental limitation: tokenizers are optimized for common text, not adversarial Unicode sequences.</p>
+          <p>LLMs (Large Language Models) like ChatGPT don't actually read text like we do. They only understand words translated into lists of numbers called "tokens." Every word in the English language can be split up into these tokens, and each token is associated with the meaning of that word (or the parts of the word) in the model's training. However, invisible Unicode characters like the ones Gibberifier uses aren't used in real text often enough to warrant their own tokens, so the tokenizer (the algorithm that turns words into tokens) just represents them as the raw UTF-8 byte data that they are stored as in computers. (something like "U+FE12")</p>
+          <p>When you gibberify text, the AI doesn't see "Hello" - it sees something like "H[U+FE12][U+FEB2][U+FE82]e[U+FB12][U+FE18][U+FE12]l[U+FE18][U+FE12][U+FB12]..." The model receives a bunch of seemingly random byte tokens that are too long for its "context window" (the amount of text it can read in one go, which is normally too high to worry about) and break its ability to understand the actual message.</p>
+          <p>Still curious? Check out <a href="https://platform.openai.com/tokenizer">OpenAI's Tokenizer Demo</a> or talk to Will Patti.</p>
         </details>
         <br>
         <strong>How to use:</strong>  This tool works best when gibberifying the most important parts of an essay prompt, up to about 500 characters. This makes it harder for the AI to detect while still functioning well in Google Docs. Some AI models will crash or fail to process the gibberified text, while others will respond with confusion or simply ignore everything inside the gibberified text.
         <br><br>
         <strong>Use cases:</strong> Anti-plagiarism, text obfuscation for LLM scrapers, or just for fun!
         <br><br>
-        Even just one word's worth of gibberified text is enough to block most LLMs from responding coherently.
+        Even just one word's worth of gibberified text (at a high intensity) is enough to block most LLMs from responding coherently.
       </div>
       
       <div class="examples-section">
@@ -577,7 +662,7 @@
         <div class="example-grid">
           <div class="example-card">
             <h3><img src="icons/openai.png" alt="OpenAI" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">ChatGPT</h3>
-            <p><strong>Result:</strong> Doesn't understand gibberified text - responds with confusion or completely ignores the invisible characters.</p>
+            <p><strong>Result:</strong> Doesn't understand gibberified text - either hits context limits or realizes that something is wrong but that it can't do anything about it.</p>
             <a href="https://chatgpt.com/share/68989a4d-b808-8008-b629-fd8bd6bcb6d2" class="example-link" target="_blank" rel="noopener noreferrer">See ChatGPT →</a>
           </div>
           
@@ -589,25 +674,25 @@
           
           <div class="example-card">
             <h3><img src="icons/gemini.png" alt="Google" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Gemini</h3>
-            <p><strong>Result:</strong> Gemini can't process the invisible characters.</p>
+            <p><strong>Result:</strong> Gemini can't process the invisible characters and sometimes has a stroke.</p>
             <a href="https://g.co/gemini/share/fcb24bf31953" class="example-link" target="_blank" rel="noopener noreferrer">See Gemini →</a>
           </div>
           
           <div class="example-card">
             <h3><img src="icons/meta.png" alt="Meta" style="height: 19px; width: auto; vertical-align: middle; margin-right: 8px;">Meta AI</h3>
-            <p><strong>Result:</strong> Crashes or errors when encountering gibberified text - cannot process the Unicode obfuscation.</p>
+            <p><strong>Result:</strong> Crashes or errors when encountering gibberified text as well.</p>
             <a href="#" class="example-link disabled" onclick="return false;">Meta AI Crashes</a>
           </div>
           
           <div class="example-card">
             <h3><img src="icons/grok.png" alt="xAI" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Grok</h3>
-            <p><strong>Result:</strong> Completely bewildered by gibberified text - has no idea what's happening with the invisible characters.</p>
+            <p><strong>Result:</strong> Says something "funny" like "sometimes less is more" as a response to its context limit being reached.</p>
             <a href="https://grok.com/share/c2hhcmQtMg%3D%3D_3f07a6a5-599f-43dc-b54f-35aa10dbe253" class="example-link" target="_blank" rel="noopener noreferrer">See Grok →</a>
           </div>
           
           <div class="example-card">
             <h3><img src="icons/perplexity.png" alt="Perplexity" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Perplexity AI</h3>
-            <p><strong>Result:</strong> Gets confused by the invisible Unicode characters and produces garbled or incomplete responses.</p>
+            <p><strong>Result:</strong> Perplexed.</p>
             <a href="https://www.perplexity.ai/search/y-o-as9QyANST_iqfqe8qpuR.w#0" class="example-link" target="_blank" rel="noopener noreferrer">See Perplexity →</a>
           </div>
         </div>

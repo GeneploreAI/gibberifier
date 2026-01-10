@@ -63,6 +63,9 @@ function validateCharacterCount() {
   }
 }
 
+// iPad Mode state
+let isIPadMode = false;
+
 // Zero-width Unicode characters (same as in the Python script)
 const emptyChars = [
   '\u200B',  // ZERO WIDTH SPACE
@@ -92,103 +95,40 @@ const emptyChars = [
   '\uFE0D',  // VARIATION SELECTOR-14
   '\uFE0E',  // VARIATION SELECTOR-15
   '\uFE0F',  // VARIATION SELECTOR-16
-  // Unicode Tags
-  '\u{E0020}',  // TAG SPACE
-  '\u{E0021}',  // TAG EXCLAMATION MARK
-  '\u{E0022}',  // TAG QUOTATION MARK
-  '\u{E0023}',  // TAG NUMBER SIGN
-  '\u{E0024}',  // TAG DOLLAR SIGN
-  '\u{E0025}',  // TAG PERCENT SIGN
-  '\u{E0026}',  // TAG AMPERSAND
-  '\u{E0027}',  // TAG APOSTROPHE
-  '\u{E0028}',  // TAG LEFT PARENTHESIS
-  '\u{E0029}',  // TAG RIGHT PARENTHESIS
-  '\u{E002A}',  // TAG ASTERISK
-  '\u{E002B}',  // TAG PLUS SIGN
-  '\u{E002C}',  // TAG COMMA
-  '\u{E002D}',  // TAG HYPHEN-MINUS
-  '\u{E002E}',  // TAG FULL STOP
-  '\u{E002F}',  // TAG SOLIDUS
-  '\u{E0030}',  // TAG DIGIT ZERO
-  '\u{E0031}',  // TAG DIGIT ONE
-  '\u{E0032}',  // TAG DIGIT TWO
-  '\u{E0033}',  // TAG DIGIT THREE
-  '\u{E0034}',  // TAG DIGIT FOUR
-  '\u{E0035}',  // TAG DIGIT FIVE
-  '\u{E0036}',  // TAG DIGIT SIX
-  '\u{E0037}',  // TAG DIGIT SEVEN
-  '\u{E0038}',  // TAG DIGIT EIGHT
-  '\u{E0039}',  // TAG DIGIT NINE
-  '\u{E003A}',  // TAG COLON
-  '\u{E003B}',  // TAG SEMICOLON
-  '\u{E003C}',  // TAG LESS-THAN SIGN
-  '\u{E003D}',  // TAG EQUALS SIGN
-  '\u{E003E}',  // TAG GREATER-THAN SIGN
-  '\u{E003F}',  // TAG QUESTION MARK
-  '\u{E0040}',  // TAG COMMERCIAL AT
-  '\u{E0041}',  // TAG LATIN CAPITAL LETTER A
-  '\u{E0042}',  // TAG LATIN CAPITAL LETTER B
-  '\u{E0043}',  // TAG LATIN CAPITAL LETTER C
-  '\u{E0044}',  // TAG LATIN CAPITAL LETTER D
-  '\u{E0045}',  // TAG LATIN CAPITAL LETTER E
-  '\u{E0046}',  // TAG LATIN CAPITAL LETTER F
-  '\u{E0047}',  // TAG LATIN CAPITAL LETTER G
-  '\u{E0048}',  // TAG LATIN CAPITAL LETTER H
-  '\u{E0049}',  // TAG LATIN CAPITAL LETTER I
-  '\u{E004A}',  // TAG LATIN CAPITAL LETTER J
-  '\u{E004B}',  // TAG LATIN CAPITAL LETTER K
-  '\u{E004C}',  // TAG LATIN CAPITAL LETTER L
-  '\u{E004D}',  // TAG LATIN CAPITAL LETTER M
-  '\u{E004E}',  // TAG LATIN CAPITAL LETTER N
-  '\u{E004F}',  // TAG LATIN CAPITAL LETTER O
-  '\u{E0050}',  // TAG LATIN CAPITAL LETTER P
-  '\u{E0051}',  // TAG LATIN CAPITAL LETTER Q
-  '\u{E0052}',  // TAG LATIN CAPITAL LETTER R
-  '\u{E0053}',  // TAG LATIN CAPITAL LETTER S
-  '\u{E0054}',  // TAG LATIN CAPITAL LETTER T
-  '\u{E0055}',  // TAG LATIN CAPITAL LETTER U
-  '\u{E0056}',  // TAG LATIN CAPITAL LETTER V
-  '\u{E0057}',  // TAG LATIN CAPITAL LETTER W
-  '\u{E0058}',  // TAG LATIN CAPITAL LETTER X
-  '\u{E0059}',  // TAG LATIN CAPITAL LETTER Y
-  '\u{E005A}',  // TAG LATIN CAPITAL LETTER Z
-  '\u{E005B}',  // TAG LEFT SQUARE BRACKET
-  '\u{E005C}',  // TAG REVERSE SOLIDUS
-  '\u{E005D}',  // TAG RIGHT SQUARE BRACKET
-  '\u{E005E}',  // TAG CIRCUMFLEX ACCENT
-  '\u{E005F}',  // TAG LOW LINE
-  '\u{E0060}',  // TAG GRAVE ACCENT
-  '\u{E0061}',  // TAG LATIN SMALL LETTER A
-  '\u{E0062}',  // TAG LATIN SMALL LETTER B
-  '\u{E0063}',  // TAG LATIN SMALL LETTER C
-  '\u{E0064}',  // TAG LATIN SMALL LETTER D
-  '\u{E0065}',  // TAG LATIN SMALL LETTER E
-  '\u{E0066}',  // TAG LATIN SMALL LETTER F
-  '\u{E0067}',  // TAG LATIN SMALL LETTER G
-  '\u{E0068}',  // TAG LATIN SMALL LETTER H
-  '\u{E0069}',  // TAG LATIN SMALL LETTER I
-  '\u{E006A}',  // TAG LATIN SMALL LETTER J
-  '\u{E006B}',  // TAG LATIN SMALL LETTER K
-  '\u{E006C}',  // TAG LATIN SMALL LETTER L
-  '\u{E006D}',  // TAG LATIN SMALL LETTER M
-  '\u{E006E}',  // TAG LATIN SMALL LETTER N
-  '\u{E006F}',  // TAG LATIN SMALL LETTER O
-  '\u{E0070}',  // TAG LATIN SMALL LETTER P
-  '\u{E0071}',  // TAG LATIN SMALL LETTER Q
-  '\u{E0072}',  // TAG LATIN SMALL LETTER R
-  '\u{E0073}',  // TAG LATIN SMALL LETTER S
-  '\u{E0074}',  // TAG LATIN SMALL LETTER T
-  '\u{E0075}',  // TAG LATIN SMALL LETTER U
-  '\u{E0076}',  // TAG LATIN SMALL LETTER V
-  '\u{E0077}',  // TAG LATIN SMALL LETTER W
-  '\u{E0078}',  // TAG LATIN SMALL LETTER X
-  '\u{E0079}',  // TAG LATIN SMALL LETTER Y
-  '\u{E007A}',  // TAG LATIN SMALL LETTER Z
-  '\u{E007B}',  // TAG LEFT CURLY BRACKET
-  '\u{E007C}',  // TAG VERTICAL LINE
-  '\u{E007D}',  // TAG RIGHT CURLY BRACKET
-  '\u{E007E}',  // TAG TILDE
-  '\u{E007F}',  // CANCEL TAG
+];
+
+// Safe characters for iPad Mode (excludes variation selectors and TAG characters)
+// Only includes low and medium-risk characters that don't show ??? on iOS
+const emptyCharsSafe = [
+  '\u200B',  // ZERO WIDTH SPACE - Low Risk
+  //'\u200C',  // ZERO WIDTH NON-JOINER - Low Risk
+  //'\u200D',  // ZERO WIDTH JOINER - Low Risk
+  //'\u2060',  // WORD JOINER - Low Risk
+  '\uFEFF',  // ZERO WIDTH NO-BREAK SPACE (BOM) - Low Risk
+  '\u2061',  // FUNCTION APPLICATION - Medium Risk
+  '\u2062',  // INVISIBLE TIMES - Medium Risk
+  '\u2063',  // INVISIBLE SEPARATOR - Medium Risk
+  '\u2064',  // INVISIBLE PLUS - Medium Risk
+  // '\u034F',  // COMBINING GRAPHEME JOINER - High Risk
+  '\uFE00',  // VARIATION SELECTOR-1
+  '\uFE01',  // VARIATION SELECTOR-2
+  '\uFE02',  // VARIATION SELECTOR-3
+  '\uFE03',  // VARIATION SELECTOR-4
+  '\uFE04',  // VARIATION SELECTOR-5
+  '\uFE05',  // VARIATION SELECTOR-6
+  '\uFE06',  // VARIATION SELECTOR-7
+  '\uFE07',  // VARIATION SELECTOR-8
+  '\uFE08',  // VARIATION SELECTOR-9
+  '\uFE09',  // VARIATION SELECTOR-10
+  '\uFE0A',  // VARIATION SELECTOR-11
+  '\uFE0B',  // VARIATION SELECTOR-12
+  '\uFE0C',  // VARIATION SELECTOR-13
+  '\uFE0D',  // VARIATION SELECTOR-14
+  '\uFE0E',  // VARIATION SELECTOR-15
+  //'\uFE0F',  // VARIATION SELECTOR-16
+  
+
+
 ];
 
 // ASCII to Unicode lookalike mapping (only truly identical-looking characters)
@@ -227,7 +167,8 @@ function getRandomInt(min, max) {
 }
 
 function getRandomEmptyChar() {
-  return emptyChars[Math.floor(Math.random() * emptyChars.length)];
+  const charArray = isIPadMode ? emptyCharsSafe : emptyChars;
+  return charArray[Math.floor(Math.random() * charArray.length)];
 }
 
 // Clipboard copy function with fallback
@@ -376,8 +317,12 @@ function gibberifyText() {
 let userHasTouchedSlider = false;
 
 // Calculate automatic intensity based on character count
-// 500% at 0 chars, 100% at 250 chars with exponential backoff
+// 100% at 0 chars, 500% at 1+ chars, decays to 100% at 250 chars with exponential backoff
 function calculateAutoIntensity(charCount) {
+  if (charCount === 0) {
+    return 100;
+  }
+  
   if (charCount >= 250) {
     return 100;
   }
@@ -406,10 +351,34 @@ function updateAutoIntensity() {
   }
 }
 
+// Toggle iPad Mode
+function toggleIPadMode() {
+  const toggle = document.getElementById('ipadModeToggle');
+  isIPadMode = toggle.checked;
+  
+  // Save preference to localStorage
+  localStorage.setItem('ipadMode', isIPadMode ? 'true' : 'false');
+  
+  // Update label to show current mode
+  const label = document.querySelector('label[for="ipadModeToggle"]');
+  if (isIPadMode) {
+    label.innerHTML = 'iPad Mode: <span style="color: #28a745; font-weight: bold;">ON</span>';
+  } else {
+    label.innerHTML = 'iPad Mode: <span style="color: #6c757d;">OFF</span>';
+  }
+}
+
 // Allow Enter key to trigger gibberification
 document.addEventListener('DOMContentLoaded', function() {
   const inputText = document.getElementById('inputText');
   const slider = document.getElementById('intensitySlider');
+  const ipadToggle = document.getElementById('ipadModeToggle');
+  
+  // Load saved iPad mode preference
+  const savedIPadMode = localStorage.getItem('ipadMode');
+  if (savedIPadMode === 'true') {
+    ipadToggle.checked = true;
+  }
   
   // Set initial intensity to 500%
   slider.value = 500;
@@ -432,6 +401,12 @@ document.addEventListener('DOMContentLoaded', function() {
     userHasTouchedSlider = true;
     updateSliderDisplay();
   });
+  
+  // Add iPad mode toggle listener
+  ipadToggle.addEventListener('change', toggleIPadMode);
+  
+  // Initialize iPad mode label
+  toggleIPadMode();
 
   // Auto-focus on the input field when page loads
   inputText.focus();
