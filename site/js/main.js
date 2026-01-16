@@ -211,7 +211,7 @@ function gibberifyText() {
   const outputElement = document.getElementById('outputText');
   const unicodeElement = document.getElementById('unicodeView');
   const statsElement = document.getElementById('stats');
-  const button = document.querySelector('button');
+  const button = document.getElementById('gibberifyButton');
   
   if (!inputText.trim()) {
     alert('Please enter some text to gibberify!');
