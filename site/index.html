@@ -92,6 +92,7 @@
       h1 {
         text-align: center;
         color: #2c3e50;
+        margin-top: 0;
         margin-bottom: 10px;
         font-size: 2.5em;
       }
@@ -499,8 +500,10 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        gap: 15px;
         margin: 30px auto;
         width: fit-content;
+        flex-wrap: wrap;
       }
       
       .github-button {
@@ -514,6 +517,27 @@
         font-weight: 600;
         transition: background 0.2s;
         box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+      }
+      
+      .chrome-button {
+        display: inline-block;
+        padding: 0;
+        background: white;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: opacity 0.2s;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
+      }
+      
+      .chrome-button:hover {
+        opacity: 0.8;
+      }
+      
+      .chrome-button img {
+        display: block;
+        height: 40px;
+        width: auto;
       }
       
       .github-button:hover {
@@ -644,11 +668,7 @@
 
   <body>
     <div class="container">
-      <a href="https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en" class="extension-button" target="_blank" rel="noopener noreferrer" title="Install Chrome Extension">
-        <img src="https://developer.chrome.com/static/docs/webstore/branding/image/HRs9MPufa1J1h5glNhut.png" alt="Available in the Chrome Web Store">
-      </a>
-      
-      <h1>🎲 Text Gibberifier</h1>
+      <h1><img src="img/gibberifier-logo.svg" alt="Gibberifier" style="height: 5em; display: block; margin: 0 auto;"></h1>
       <p class="subtitle">Block AIs from reading your text with invisible Unicode characters while preserving meaning for humans.</p>
       
       <div class="input-group">
@@ -681,7 +701,7 @@
       
 
       <div class="button-container">
-        <button id="gibberifyButton" onclick="gibberifyText()">🎲 Gibberify Text</button>
+        <button id="gibberifyButton" onclick="gibberifyText()">Gibberify Text</button>
       </div>
       
       <div class="input-group">
@@ -716,37 +736,37 @@
         <h2>Tested Against AI Models</h2>
         <div class="example-grid">
           <div class="example-card">
-            <h3><img src="icons/openai.png" alt="OpenAI" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">ChatGPT</h3>
+            <h3><img src="img/icons/openai.png" alt="OpenAI" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">ChatGPT</h3>
             <p><strong>Result:</strong> Doesn't understand gibberified text - either hits context limits or realizes that something is wrong but that it can't do anything about it.</p>
             <a href="https://chatgpt.com/share/68989a4d-b808-8008-b629-fd8bd6bcb6d2" class="example-link" target="_blank" rel="noopener noreferrer">See ChatGPT →</a>
           </div>
           
           <div class="example-card">
-            <h3><img src="icons/anthropic.png" alt="Anthropic" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Claude</h3>
+            <h3><img src="img/icons/anthropic.png" alt="Anthropic" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Claude</h3>
             <p><strong>Result:</strong> Claude can't handle the large text and crashes.</p>
             <a href="#" class="example-link disabled" onclick="return false;">Claude Crashes</a>
           </div>
           
           <div class="example-card">
-            <h3><img src="icons/gemini.png" alt="Google" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Gemini</h3>
+            <h3><img src="img/icons/gemini.png" alt="Google" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Gemini</h3>
             <p><strong>Result:</strong> Gemini can't process the invisible characters and sometimes has a stroke.</p>
             <a href="https://g.co/gemini/share/fcb24bf31953" class="example-link" target="_blank" rel="noopener noreferrer">See Gemini →</a>
           </div>
           
           <div class="example-card">
-            <h3><img src="icons/meta.png" alt="Meta" style="height: 19px; width: auto; vertical-align: middle; margin-right: 8px;">Meta AI</h3>
+            <h3><img src="img/icons/meta.png" alt="Meta" style="height: 19px; width: auto; vertical-align: middle; margin-right: 8px;">Meta AI</h3>
             <p><strong>Result:</strong> Crashes or errors when encountering gibberified text as well.</p>
             <a href="#" class="example-link disabled" onclick="return false;">Meta AI Crashes</a>
           </div>
           
           <div class="example-card">
-            <h3><img src="icons/grok.png" alt="xAI" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Grok</h3>
+            <h3><img src="img/icons/grok.png" alt="xAI" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Grok</h3>
             <p><strong>Result:</strong> Says something "funny" like "sometimes less is more" as a response to its context limit being reached.</p>
             <a href="https://grok.com/share/c2hhcmQtMg%3D%3D_3f07a6a5-599f-43dc-b54f-35aa10dbe253" class="example-link" target="_blank" rel="noopener noreferrer">See Grok →</a>
           </div>
           
           <div class="example-card">
-            <h3><img src="icons/perplexity.png" alt="Perplexity" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Perplexity AI</h3>
+            <h3><img src="img/icons/perplexity.png" alt="Perplexity" style="height: 24px; width: auto; vertical-align: middle; margin-right: 8px;">Perplexity AI</h3>
             <p><strong>Result:</strong> Perplexed.</p>
             <a href="https://www.perplexity.ai/search/y-o-as9QyANST_iqfqe8qpuR.w#0" class="example-link" target="_blank" rel="noopener noreferrer">See Perplexity →</a>
           </div>
@@ -760,13 +780,13 @@
           <div class="example-card">
             <h3>🔥 Firecrawl</h3>
             <p><strong>Result:</strong> Firecrawl's AI scraper fails to extract any content from gibberified text.</p>
-            <img src="firecrawl.png" alt="Firecrawl scraper failure" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;">
+            <img src="img/firecrawl.png" alt="Firecrawl scraper failure" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;">
           </div>
           
           <div class="example-card">
             <h3>📄 TLDR This</h3>
             <p><strong>Result:</strong> TLDR This summarization tool cannot process gibberified content properly.</p>
-            <img src="tldr.png" alt="TLDR This failure" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;">
+            <img src="img/tldr.png" alt="TLDR This failure" style="max-width: 100%; height: auto; border-radius: 4px; margin-top: 10px;">
           </div>
         </div>
       </div>
@@ -778,6 +798,9 @@
           <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
         </svg>
         View on GitHub
+      </a>
+      <a href="https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en" class="chrome-button" target="_blank" rel="noopener noreferrer" title="Install Chrome Extension">
+        <img src="https://developer.chrome.com/static/docs/webstore/branding/image/HRs9MPufa1J1h5glNhut.png" alt="Available in the Chrome Web Store">
       </a>
     </div>
 
