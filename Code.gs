@@ -452,7 +452,7 @@ function showAbout() {
     '1. Select the text you want to gibberify\n' +
     '2. Click Gibberifier > Gibberify Selection\n' +
     '3. Adjust settings in Gibberifier > Settings\n\n' +
-    'This tool works best when gibberifying the most important parts of an essay prompt, up to about 500 characters. Even just one word\'s worth of gibberified text (at a high intensity) is enough to block most LLMs from responding coherently.',
+    'This tool works best when gibberifying the most important parts of an essay prompt, up to about 500 characters. Even just one sentence\'s worth of gibberified text (at a high intensity) is enough to block almost all LLMs from responding coherently.',
     ui.ButtonSet.OK
   );
 }
