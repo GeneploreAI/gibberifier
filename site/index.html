@@ -523,11 +523,14 @@
         display: inline-block;
         padding: 0;
         background: white;
-        border-radius: 6px;
+        border-radius: 8px;
         text-decoration: none;
         transition: opacity 0.2s;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
         border: 1px solid #e0e0e0;
+        height: 46px;
+        display: flex;
+        align-items: center;
       }
       
       .chrome-button:hover {
@@ -536,8 +539,19 @@
       
       .chrome-button img {
         display: block;
-        height: 40px;
+        height: 52px;
         width: auto;
+      }
+      
+      .terms-button {
+        color: rgba(102, 102, 102, 0.3);
+        text-decoration: none;
+        font-size: 14px;
+        transition: opacity 0.2s;
+      }
+      
+      .terms-button:hover {
+        opacity: 0.7;
       }
       
       .github-button:hover {
@@ -802,6 +816,9 @@
       </a>
       <a href="https://chromewebstore.google.com/detail/gibberifier/cmlaplmipnmfpfcgmegjobhobehjiagn?authuser=0&hl=en" class="chrome-button" target="_blank" rel="noopener noreferrer" title="Install Chrome Extension">
         <img src="https://developer.chrome.com/static/docs/webstore/branding/image/HRs9MPufa1J1h5glNhut.png" alt="Available in the Chrome Web Store">
+      </a>
+      <a href="terms.html" class="terms-button">
+        Terms
       </a>
     </div>
 
