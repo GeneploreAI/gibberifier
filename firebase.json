@@ -10,8 +10,12 @@
     "rewrites": [
       {
         "source": "privacy",
-        "destination": "/privacy.html"
+        "destination": "/terms.html"
       },
+      {
+        "source": "terms",
+        "destination": "/terms.html"
+      }
       {
         "source": "example",
         "destination": "/example.html"
