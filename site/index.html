@@ -127,17 +127,38 @@
         transition: border-color 0.3s;
       }
       
-      textarea:focus {
+      textarea:focus,
+      #richInput:focus {
         outline: none;
         border-color: #3498db;
       }
       
-      textarea.warning {
+      textarea.warning,
+      #richInput.warning {
         border-color: #ff6b35;
       }
       
       #inputText {
         height: 120px;
+      }
+      
+      #richInput {
+        width: 100%;
+        height: 120px;
+        padding: 15px;
+        border: 2px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        box-sizing: border-box;
+        transition: border-color 0.3s;
+        overflow: auto;
+        resize: vertical;
+        white-space: pre-wrap;
+        background: white;
+      }
+      
+      #richInput[hidden] {
+        display: none;
       }
       
       #outputText {
@@ -313,10 +334,46 @@
         position: relative;
       }
       
-      .ipad-warning-box {
+      .notice-stack {
         position: absolute;
         right: 100%;
         margin-right: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .rich-notice {
+        background: #e8f5e9;
+        border: 1px solid #28a745;
+        border-radius: 6px;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #1e7e34;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        display: none;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .rich-notice.show {
+        display: flex;
+        animation: fadeIn 0.3s ease-in forwards;
+      }
+      
+      .rich-notice-remove {
+        background: none;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        font-size: 12px;
+        color: #1e7e34;
+        text-decoration: underline;
+        cursor: pointer;
+      }
+      
+      .ipad-warning-box {
         background: #fff3cd;
         border: 1px solid #ffc107;
         border-radius: 6px;
@@ -690,9 +747,15 @@
         <div class="input-label-row">
           <label for="inputText">Input Text:</label>
           <div class="toggle-group">
-            <div id="ipadWarningBox" class="ipad-warning-box">
-              <span>⚠️ Characters may appear as ??? on iOS/iPadOS</span>
-              <button class="ipad-warning-close" onclick="closeIPadWarning()" aria-label="Close">×</button>
+            <div class="notice-stack">
+              <div id="richNotice" class="rich-notice" role="status">
+                <span>Rich text enabled</span>
+                <button type="button" class="rich-notice-remove" onclick="removeFormatting()">Remove formatting</button>
+              </div>
+              <div id="ipadWarningBox" class="ipad-warning-box">
+                <span>⚠️ Characters may appear as ??? on iOS/iPadOS</span>
+                <button class="ipad-warning-close" onclick="closeIPadWarning()" aria-label="Close">×</button>
+              </div>
             </div>
             <label class="toggle-label" for="ipadModeToggle" title="Only adds characters to the text that are invisible on iOS">iPad Mode: <span style="color: #6c757d;">OFF</span></label>
             <label class="toggle-switch">
@@ -702,6 +765,7 @@
           </div>
         </div>
         <textarea id="inputText" placeholder="Enter your text here to gibberify..."></textarea>
+        <div id="richInput" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Input Text" hidden></div>
         <div id="charWarning" class="char-warning" style="display: none;"></div>
         <div id="charCount" class="char-count"></div>
       </div>
