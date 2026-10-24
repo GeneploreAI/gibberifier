@@ -172,6 +172,17 @@ function getUnicodeReplacement(char) {
   return asciiToUnicode[char] || char;
 }
 
+const graphemeSegmenter = typeof Intl !== 'undefined' && Intl.Segmenter
+  ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+  : null;
+
+// Splits into user-perceived characters so emoji (surrogate pairs, ZWJ sequences, skin tones, flags) stay intact
+function splitGraphemes(text) {
+  return graphemeSegmenter
+    ? Array.from(graphemeSegmenter.segment(text), s => s.segment)
+    : Array.from(text);
+}
+
 function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
@@ -451,19 +462,20 @@ function gibberifyText() {
     addInvisibleChars(true);
     
     // Process each character in the input
-    for (let i = 0; i < inputText.length; i++) {
-      const char = inputText[i];
+    const graphemes = splitGraphemes(inputText);
+    for (let i = 0; i < graphemes.length; i++) {
+      const char = graphemes[i];
       
       // Replace ASCII character with Unicode lookalike
       const unicodeChar = getUnicodeReplacement(char);
       result += unicodeChar;
       
       // Add the Unicode character to Unicode representation
-      const charUnicode = 'U+' + unicodeChar.charCodeAt(0).toString(16).toUpperCase().padStart(4, '0');
+      const charUnicode = Array.from(unicodeChar, cp => 'U+' + cp.codePointAt(0).toString(16).toUpperCase().padStart(4, '0')).join(' ');
       unicodeRepresentation += `[${charUnicode}]`;
       
       // Add invisible characters after each character (including the last one)
-      addInvisibleChars(i === inputText.length - 1);
+      addInvisibleChars(i === graphemes.length - 1);
     }
     
     const bodyLength = result.length;
@@ -486,7 +498,7 @@ function gibberifyText() {
       
       for (const node of textNodes) {
         let out = '';
-        for (const char of node.nodeValue) {
+        for (const char of splitGraphemes(node.nodeValue)) {
           out += getUnicodeReplacement(char) + invisibleRun();
         }
         node.nodeValue = out;

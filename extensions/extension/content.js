@@ -179,16 +179,21 @@ function gibberifyText(inputText) {
     result += getRandomEmptyChar();
   }
   
+  // Split by grapheme so emoji sequences aren't broken apart
+  const graphemes = Intl.Segmenter
+    ? Array.from(new Intl.Segmenter(undefined, { granularity: 'grapheme' }).segment(inputText), s => s.segment)
+    : Array.from(inputText);
+  
   // Process each character in the input
-  for (let i = 0; i < inputText.length; i++) {
-    const char = inputText[i];
+  for (let i = 0; i < graphemes.length; i++) {
+    const char = graphemes[i];
     
     // Replace ASCII character with Unicode lookalike
     const unicodeChar = getUnicodeReplacement(char);
     result += unicodeChar;
     
     // Don't add empty characters after the last character
-    if (i < inputText.length - 1) {
+    if (i < graphemes.length - 1) {
       // Add 150-200 random empty characters
       const numEmptyChars = getRandomInt(150, 200);
       
