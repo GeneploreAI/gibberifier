@@ -45,13 +45,23 @@ function validateCharacterCount() {
   charCount.textContent = `${length} characters`;
   
   // Check if the length is outside the optimal range
-  if (length > 500) {
+  if (length > 25000) {
     // Add warning styling
     inputText.classList.add('warning');
     charCount.classList.add('warning');
     
     // Show appropriate warning message
-    const warningMessage = `⚠️ Too long! Remove ${length - 500} characters to avoid diluting the invisible characters. Select the most important part of your text and input that instead.`;
+    const warningMessage = `⚠️ Did you paste an already-Gibberified document in here?`;
+    
+    charWarning.textContent = warningMessage;
+    charWarning.style.display = 'block';
+  } else if (length > 2500) {
+    // Add warning styling
+    inputText.classList.add('warning');
+    charCount.classList.add('warning');
+    
+    // Show appropriate warning message
+    const warningMessage = `⚠️ Too long! Remove ${length - 2500} characters to avoid diluting the invisible characters. Select the most important part of your text and input that instead.`;
     
     charWarning.textContent = warningMessage;
     charWarning.style.display = 'block';
