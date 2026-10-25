@@ -420,6 +420,23 @@
         opacity: 1;
       }
       
+      .demolisher-warning-box {
+        background: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+        white-space: normal;
+        width: 280px;
+      }
+      
+      .demolisher-label {
+        color: #dc3545;
+        margin-left: 8px;
+      }
+      
+      .toggle-switch.danger input:checked + .toggle-slider {
+        background-color: #dc3545;
+      }
+      
       .toggle-label {
         font-weight: 500;
         color: #555;
@@ -756,10 +773,18 @@
                 <span>⚠️ Characters may appear as ??? on iOS/iPadOS</span>
                 <button class="ipad-warning-close" onclick="closeIPadWarning()" aria-label="Close">×</button>
               </div>
+              <div id="demolisherWarningBox" class="ipad-warning-box demolisher-warning-box" role="alert">
+                <span>⚠️ Pasting text gibberified with this setting into an AI model results in an instant account ban from most providers! Use with caution.</span>
+              </div>
             </div>
             <label class="toggle-label" for="ipadModeToggle" title="Only adds characters to the text that are invisible on iOS">iPad Mode: <span style="color: #6c757d;">OFF</span></label>
             <label class="toggle-switch">
               <input type="checkbox" id="ipadModeToggle">
+              <span class="toggle-slider"></span>
+            </label>
+            <label class="toggle-label demolisher-label" for="demolisherToggle">Safety Flagging: <span style="color: #6c757d;">OFF</span></label>
+            <label class="toggle-switch danger">
+              <input type="checkbox" id="demolisherToggle">
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -770,7 +795,7 @@
         <div id="charCount" class="char-count"></div>
       </div>
       
-      <div class="slider-group">
+      <div class="slider-group" id="intensityGroup">
         <div class="slider-header">
           <label class="slider-label" for="intensitySlider">Intensity:</label>
           <div id="sliderValue" class="slider-value">100%</div>
