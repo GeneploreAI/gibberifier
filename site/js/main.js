@@ -31,6 +31,45 @@ function updateSliderDisplay() {
   } else {
     valueDisplay.classList.add('extreme');
   }
+  
+  updatePasteLimit();
+}
+
+// ChatGPT handles pastes above this length as a .txt attachment, which it reads more easily
+const PASTE_LIMIT = 7500;
+
+function estimateAddedChars(percentage, graphemeCount) {
+  // One invisible run at the start plus one after every character
+  return graphemeCount === 0 ? 0 : (graphemeCount + 1) * percentageToCharCount(percentage);
+}
+
+function updatePasteLimit() {
+  const slider = document.getElementById('intensitySlider');
+  const marker = document.getElementById('pasteLimitMarker');
+  const warning = document.getElementById('pasteLimitWarning');
+  const min = parseInt(slider.min);
+  const max = parseInt(slider.max);
+  const graphemeCount = splitGraphemes(getInputText()).length;
+  
+  let threshold = null;
+  for (let p = min; p <= max; p++) {
+    if (estimateAddedChars(p, graphemeCount) > PASTE_LIMIT) {
+      threshold = p;
+      break;
+    }
+  }
+  
+  if (threshold === null) {
+    marker.hidden = true;
+    warning.hidden = true;
+    return;
+  }
+  
+  // Offset by half the 18px thumb so the line lines up with the thumb center
+  const fraction = (threshold - min) / (max - min);
+  marker.style.left = `calc(9px + ${fraction} * (100% - 18px))`;
+  marker.hidden = false;
+  warning.hidden = parseInt(slider.value) < threshold;
 }
 
 // Character count validation
@@ -587,6 +626,8 @@ function updateAutoIntensity() {
     const autoIntensity = calculateAutoIntensity(charCount);
     slider.value = autoIntensity;
     updateSliderDisplay();
+  } else {
+    updatePasteLimit();
   }
 }
 
