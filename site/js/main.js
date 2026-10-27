@@ -55,13 +55,13 @@ function validateCharacterCount() {
     
     charWarning.textContent = warningMessage;
     charWarning.style.display = 'block';
-  } else if (length > 2500) {
+  } else if (length > 500) {
     // Add warning styling
     inputText.classList.add('warning');
     charCount.classList.add('warning');
     
     // Show appropriate warning message
-    const warningMessage = `⚠️ Too long! Remove ${length - 2500} characters to avoid diluting the invisible characters. Select the most important part of your text and input that instead.`;
+    const warningMessage = `⚠️ Too long! Remove ${length - 500} characters to avoid diluting the invisible characters. Select the most important part of your text and input that instead.`;
     
     charWarning.textContent = warningMessage;
     charWarning.style.display = 'block';
