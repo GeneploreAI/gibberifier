@@ -1,4 +1,3 @@
-// Create context menu on installation
 chrome.runtime.onInstalled.addListener(() => {
   chrome.contextMenus.create({
     id: 'gibberify-text',
@@ -7,23 +6,18 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// Handle context menu clicks
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
-  if (info.menuItemId === 'gibberify-text' && info.selectionText) {
-    try {
-      // Inject content script if not already present
-      await chrome.scripting.executeScript({
-        target: { tabId: tab.id },
-        files: ['content.js']
-      });
-      
-      // Send message to content script to replace the selected text
-      chrome.tabs.sendMessage(tab.id, {
-        action: 'gibberify',
-        text: info.selectionText
-      });
-    } catch (error) {
-      console.error('Error injecting content script:', error);
-    }
+  if (info.menuItemId !== 'gibberify-text' || !tab?.id) return;
+
+  // Target the frame the selection is in so text inside iframes works too
+  const frameId = info.frameId ?? 0;
+  try {
+    await chrome.scripting.executeScript({
+      target: { tabId: tab.id, frameIds: [frameId] },
+      files: ['dist/gibberify-core.js', 'dist/content.js']
+    });
+    await chrome.tabs.sendMessage(tab.id, { action: 'gibberify', text: info.selectionText }, { frameId });
+  } catch (error) {
+    console.error('Gibberifier failed to run on this page:', error);
   }
 });
