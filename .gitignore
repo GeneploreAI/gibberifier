@@ -67,6 +67,8 @@ node_modules/
 
 # dataconnect generated files
 .dataconnect
-build/
-dist/
-manifest.firefox.json
+
+# Browser extension build output
+extensions/extension/dist/
+extensions/extension/build/
+extensions/extension/manifest.firefox.json

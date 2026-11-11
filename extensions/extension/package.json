@@ -1,0 +1,13 @@
+{
+  "name": "gibberifier-extension",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Gibberifier browser extension for Chrome and Firefox",
+  "license": "SEE LICENSE IN ../../LICENSE",
+  "scripts": {
+    "build": "node scripts/build.js && node scripts/build-manifests.js",
+    "manifests": "node scripts/build-manifests.js",
+    "stage:chrome": "node scripts/stage.js chrome",
+    "stage:firefox": "node scripts/stage.js firefox"
+  }
+}
