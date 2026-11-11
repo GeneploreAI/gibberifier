@@ -51,7 +51,7 @@ function validateCharacterCount() {
     
     charWarning.textContent = warningMessage;
     charWarning.style.display = 'block';
-  } else if (length > 500) {
+  } else if (false) {
     // Add warning styling
     inputText.classList.add('warning');
     charCount.classList.add('warning');
