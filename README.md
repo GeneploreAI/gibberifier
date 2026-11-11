@@ -15,3 +15,7 @@ A Chrome extension is also available that allows you to gibberify selected text 
 ## Firefox Extension:
 A Firefox extension is also available that does the exact same thing as the Chrome extension.
 [Add it here!](https://addons.mozilla.org/en-US/firefox/addon/gibberifier/)
+
+
+### How to build extensions:
+`cd extensions/extension && npm run build && npm run stage:firefox && npm run stage:chrome`
