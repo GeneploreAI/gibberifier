@@ -72,3 +72,5 @@ node_modules/
 extensions/extension/dist/
 extensions/extension/build/
 extensions/extension/manifest.firefox.json
+
+.DS_Store
