@@ -139,4 +139,187 @@
   chrome.runtime.onMessage.addListener((request) => {
     if (request.action === 'gibberify') handleGibberify(request.text);
   });
+
+  // --- Google Docs: whole-document button ---
+  // Docs renders text on a canvas, so the page is gibberified by copying everything through
+  // Docs' own (hidden) editing iframe and pasting the gibberified HTML back over the selection.
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  function gibberifyClipboardData({ html, text }) {
+    if (!text.trim()) return null;
+    const options = optionsFor(text);
+    if (!html) return { html: '', text: gibberify(text, options).text };
+
+    const body = gibberifyNode(sanitizeHtml(html), options);
+    return { html: body.innerHTML, text: body.textContent };
+  }
+
+  function pressSelectAll(frameWin, target) {
+    const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+    const init = {
+      key: 'a', code: 'KeyA', view: frameWin,
+      ctrlKey: !isMac, metaKey: isMac, bubbles: true, cancelable: true
+    };
+    for (const type of ['keydown', 'keypress', 'keyup']) {
+      const event = new KeyboardEvent(type, init);
+      // Docs reads the legacy keyCode, which the constructor leaves at 0
+      Object.defineProperty(event, 'keyCode', { value: 65 });
+      Object.defineProperty(event, 'which', { value: 65 });
+      target.dispatchEvent(event);
+    }
+  }
+
+  function fireMouse(el, types) {
+    const rect = el.getBoundingClientRect();
+    const init = { bubbles: true, cancelable: true, view: window, button: 0, clientX: rect.left + 2, clientY: rect.top + 2 };
+    for (const type of types) el.dispatchEvent(new MouseEvent(type, init));
+  }
+
+  // Fallback for when Docs ignores synthetic key events: Edit > Select all (English UI)
+  async function selectAllViaMenu() {
+    const menu = document.getElementById('docs-edit-menu');
+    if (!menu) return;
+    fireMouse(menu, ['mousedown', 'mouseup', 'click']);
+    await wait(250);
+    const item = [...document.querySelectorAll('.goog-menuitem')]
+      .find((el) => /^select all/i.test(el.textContent.trim()));
+    if (item) fireMouse(item, ['mouseover', 'mousedown', 'mouseup', 'click']);
+    else document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    await wait(250);
+  }
+
+  // Runs Docs' own copy handler and swaps the clipboard contents for the gibberified version
+  function copyAndGibberify(frameDoc) {
+    let result = null;
+    const onCopy = (e) => {
+      console.log('Gibberifier: Docs copy flavors', [...e.clipboardData.types]);
+      result = gibberifyClipboardData({
+        html: e.clipboardData.getData('text/html'),
+        text: e.clipboardData.getData('text/plain')
+      });
+      if (!result) return;
+      // Docs pastes its own internal slice format in preference to HTML/text, so drop every original flavor
+      e.clipboardData.clearData();
+      e.clipboardData.setData('text/plain', result.text);
+      e.clipboardData.setData('text/html', result.html);
+      e.preventDefault();
+    };
+    // On the window so it runs after Docs' own copy handler has filled the clipboard data
+    frameDoc.defaultView.addEventListener('copy', onCopy);
+    try {
+      frameDoc.execCommand('copy');
+    } finally {
+      frameDoc.defaultView.removeEventListener('copy', onCopy);
+    }
+    return result;
+  }
+
+  async function gibberifyDocsPage(button) {
+    const frameDoc = document.querySelector('iframe.docs-texteventtarget-iframe')?.contentDocument;
+    const frameWin = frameDoc?.defaultView;
+    const editable = frameDoc?.querySelector('[contenteditable]') ?? frameDoc?.body;
+    if (!editable) {
+      showNotification('Could not find the Google Docs editor', true);
+      return;
+    }
+
+    button.disabled = true;
+    try {
+      editable.focus();
+      const target = frameDoc.activeElement ?? editable;
+
+      pressSelectAll(frameWin, target);
+      await wait(300);
+      let result = copyAndGibberify(frameDoc);
+
+      if (!result) {
+        await selectAllViaMenu();
+        editable.focus();
+        result = copyAndGibberify(frameDoc);
+      }
+      if (!result) {
+        showNotification('Could not select and copy the document text', true);
+        return;
+      }
+
+      editable.focus();
+      // Docs cancels a paste event it handled, so a cancelled event means the text went in
+      const data = new DataTransfer();
+      data.setData('text/plain', result.text);
+      data.setData('text/html', result.html);
+      const synthetic = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
+      const handled = !target.dispatchEvent(synthetic);
+      console.log('Gibberifier: synthetic paste handled by Docs:', handled);
+
+      if (!handled) {
+        const native = frameDoc.execCommand('paste');
+        console.log('Gibberifier: native paste result:', native);
+        if (!native) {
+          showNotification('Docs blocked the paste', true);
+          return;
+        }
+      }
+      showNotification('Document gibberified! Use Undo to revert.');
+    } catch (err) {
+      console.error('Gibberifier failed on Google Docs:', err);
+      showNotification('Could not gibberify this document', true);
+    } finally {
+      button.disabled = false;
+    }
+  }
+
+  const DOCS_BUTTON_ID = 'gibberifier-docs-button';
+  // Only an open document (/document/d/<id>/...), not the /document/u/0/ document list
+  const isOpenDoc = () => location.hostname === 'docs.google.com' && /^\/document\/(u\/\d+\/)?d\//.test(location.pathname);
+
+  function createDocsButton() {
+    const button = document.createElement('button');
+    button.id = DOCS_BUTTON_ID;
+    button.type = 'button';
+    button.textContent = 'Gibberify page';
+    button.title = 'Gibberify the entire document, keeping its formatting';
+    button.style.cssText = `
+      height: 36px;
+      margin: 0 8px;
+      padding: 0 20px;
+      flex: none;
+      align-self: center;
+      background: #0b57d0;
+      color: #fff;
+      border: none;
+      border-radius: 18px;
+      font-family: 'Google Sans', Roboto, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      white-space: nowrap;
+      cursor: pointer;
+    `;
+    button.addEventListener('mouseenter', () => { button.style.background = '#0a4cb5'; });
+    button.addEventListener('mouseleave', () => { button.style.background = '#0b57d0'; });
+    button.addEventListener('click', () => gibberifyDocsPage(button));
+    return button;
+  }
+
+  // Keeps the button directly before the Share button, and removes it when not in a document
+  function syncDocsButton() {
+    const existing = document.getElementById(DOCS_BUTTON_ID);
+    const share = isOpenDoc() ? document.getElementById('docs-titlebar-share-client-button') : null;
+    if (!share) {
+      existing?.remove();
+      return;
+    }
+    if (existing && existing.nextElementSibling === share) return;
+    share.parentElement.insertBefore(existing ?? createDocsButton(), share);
+  }
+
+  if (location.hostname === 'docs.google.com') {
+    let scheduled = false;
+    // Docs builds its title bar after load and re-renders it, so keep checking
+    new MutationObserver(() => {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(() => { scheduled = false; syncDocsButton(); });
+    }).observe(document.documentElement, { childList: true, subtree: true });
+    syncDocsButton();
+  }
 })();
