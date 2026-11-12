@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Gibberifier",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Right-click selected text to convert it into gibberish using invisible Unicode characters",
   "permissions": [
     "activeTab",
