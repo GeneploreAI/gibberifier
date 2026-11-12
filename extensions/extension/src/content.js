@@ -267,7 +267,7 @@
     const button = document.createElement('button');
     button.id = DOCS_BUTTON_ID;
     button.type = 'button';
-    button.textContent = 'Gibberify page';
+    button.textContent = 'Gibberify';
     button.title = 'Gibberify the entire document, keeping its formatting';
     button.style.cssText = `
       height: 36px;
