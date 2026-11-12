@@ -8,6 +8,7 @@
     "build": "node scripts/build.js && node scripts/build-manifests.js",
     "manifests": "node scripts/build-manifests.js",
     "stage:chrome": "node scripts/stage.js chrome",
-    "stage:firefox": "node scripts/stage.js firefox"
+    "stage:firefox": "node scripts/stage.js firefox",
+    "zip:firefox": "npm run stage:firefox && rm -f build/gibberifier-firefox.zip && cd build/firefox && zip -r -X ../gibberifier-firefox.zip manifest.json dist icons -x '*.DS_Store'"
   }
 }
