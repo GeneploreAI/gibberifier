@@ -249,16 +249,7 @@
       data.setData('text/html', result.html);
       const synthetic = new ClipboardEvent('paste', { clipboardData: data, bubbles: true, cancelable: true });
       const handled = !target.dispatchEvent(synthetic);
-      console.log('Gibberifier: synthetic paste handled by Docs:', handled);
-
-      if (!handled) {
-        const native = frameDoc.execCommand('paste');
-        console.log('Gibberifier: native paste result:', native);
-        if (!native) {
-          showNotification('Docs blocked the paste', true);
-          return;
-        }
-      }
+      if (!handled) frameDoc.execCommand('paste');
       showNotification('Document gibberified! Use Undo to revert.');
     } catch (err) {
       console.error('Gibberifier failed on Google Docs:', err);
