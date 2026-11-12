@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Gibberifier – Grapheme Lab</title>
+<style>
+  :root { --bg:#12141a; --panel:#1b1e27; --line:#2e3342; --text:#e6e8ee; --dim:#8b92a6; --accent:#6ea8fe; --ok:#4ade80; --bad:#f87171; --warn:#fbbf24; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; padding:24px; max-width:1200px; margin-inline:auto; }
+  h1 { margin:0 0 4px; font-size:22px; }
+  h2 { margin:32px 0 6px; font-size:17px; }
+  p.note { color:var(--dim); margin:0 0 10px; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:16px; margin-top:16px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:left; padding:5px 8px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  th { color:var(--dim); font-weight:600; position:sticky; top:0; background:var(--panel); }
+  code, .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .sample { display:inline-block; padding:0 4px; border:1px dashed var(--line); border-radius:4px; font-size:18px; white-space:pre; }
+  .tag { display:inline-block; padding:1px 6px; border-radius:999px; background:#262b3a; color:var(--dim); font-size:11px; }
+  .yes { color:var(--ok); } .no { color:var(--bad); } .maybe { color:var(--warn); }
+  button { background:#2a3042; color:var(--text); border:1px solid var(--line); border-radius:6px; padding:5px 10px; cursor:pointer; font:inherit; }
+  button:hover { background:#343c54; }
+  button.primary { background:var(--accent); color:#0b1020; border-color:var(--accent); font-weight:600; }
+  input[type=number], input[type=text], textarea { background:#0f1117; color:var(--text); border:1px solid var(--line); border-radius:6px; padding:6px 8px; font:inherit; }
+  textarea { width:100%; min-height:110px; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .row { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:8px 0; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin:10px 0; }
+  .stat { background:#0f1117; border:1px solid var(--line); border-radius:8px; padding:8px 10px; }
+  .stat b { display:block; font-size:18px; font-family:ui-monospace, Menlo, monospace; }
+  .stat span { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.04em; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(88px,1fr)); gap:6px; }
+  .cell { background:#0f1117; border:1px solid var(--line); border-radius:6px; padding:4px 6px; font-size:11px; text-align:center; cursor:pointer; user-select:none; }
+  .cell.sel { border-color:var(--accent); background:#18233b; }
+  .cell .sample { font-size:15px; }
+  .over { color:var(--bad); font-weight:700; } .under { color:var(--ok); font-weight:700; }
+  .scroll { max-height:420px; overflow:auto; border:1px solid var(--line); border-radius:8px; }
+  details { margin-top:8px; }
+  summary { cursor:pointer; color:var(--accent); }
+</style>
+</head>
+<body>
+
+<h1>Grapheme Lab</h1>
+<p class="note">Every invisible / zero-width / combining character candidate, with live measurements. Select characters, build a payload at an exact UTF-16 size, and paste it into ChatGPT to probe the paste-to-file threshold.</p>
+
+<section id="builderSection">
+  <h2 style="margin-top:0">1. Payload builder</h2>
+  <p class="note">Click characters in the catalog (or whole categories) to add them to the pool. The builder interleaves them between the graphemes of the base text.</p>
+  <div class="row">
+    <label>Base text <input type="text" id="baseText" value="Explain the causes of the French Revolution." size="44"></label>
+    <label>Target UTF-16 length <input type="number" id="targetLen" value="7400" min="0" step="100" style="width:100px"></label>
+    <label>Cap (threshold) <input type="number" id="threshold" value="7500" min="1" step="100" style="width:90px"></label>
+  </div>
+  <div class="row">
+    <label>Pool mode
+      <select id="poolMode">
+        <option value="random">Random from pool</option>
+        <option value="cycle">Cycle through pool in order</option>
+        <option value="even">Even mix of categories</option>
+      </select>
+    </label>
+    <button class="primary" id="buildBtn">Build payload</button>
+    <button id="copyBtn">Copy payload</button>
+    <button id="prodPool" title="Site pool + extension tag characters">All prod characters</button>
+    <button id="ipadPool" title="Site iPad mode subset (emptyCharsSafe)">iPad-safe characters</button>
+    <button id="clearPool">Clear pool</button>
+    <span id="poolInfo" class="tag">pool: 0 chars</span>
+  </div>
+  <textarea id="payload" spellcheck="false" placeholder="Payload appears here"></textarea>
+  <div class="stats" id="payloadStats"></div>
+</section>
+
+<section>
+  <h2 style="margin-top:0">2. Analyzer</h2>
+  <p class="note">Paste anything (including from Docs or ChatGPT) to see how it measures. The paste event also reports the clipboard flavors.</p>
+  <textarea id="analyzeInput" spellcheck="false" placeholder="Paste text here"></textarea>
+  <div class="stats" id="analyzeStats"></div>
+  <div id="clipInfo" class="note"></div>
+  <details>
+    <summary>Distinct code points in input</summary>
+    <div class="scroll"><table id="cpTable"><thead><tr><th>Code point</th><th>Count</th><th>Category</th><th>UTF-16 units</th><th>Name / note</th></tr></thead><tbody></tbody></table></div>
+  </details>
+</section>
+
+<section>
+  <h2 style="margin-top:0">3. Catalog</h2>
+  <p class="note">Width is measured in your browser/font (A+char+B vs AB). Cleanup columns simulate common stripping: <code>\p{Cf}</code>, <code>\p{Mn}</code>, NFKC, ASCII-only, and <code>\w</code>/<code>\p{L}</code> tests.</p>
+  <div id="catalog"></div>
+</section>
+
+<section>
+  <h2 style="margin-top:0">4. Homoglyph candidates</h2>
+  <p class="note">Latin letters with look-alikes from other scripts. "NFKC-stable" means NFKC normalization does not fold the character back to ASCII.</p>
+  <div class="scroll"><table id="homoTable"><thead><tr><th>Latin</th><th>Candidates</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<script>
+const range = (a, b) => Array.from({ length: b - a + 1 }, (_, i) => a + i);
+const hex = cp => 'U+' + cp.toString(16).toUpperCase().padStart(4, '0');
+
+// Category definitions: [id, title, description, entries]. Entries are code points or {cp, name}.
+const CATEGORIES = [
+  { id: 'A', title: 'A · Format controls (Cf)', desc: 'Stripped by \\p{Cf} cleanup. Today\'s Gibberifier pool lives here.', items: [
+    [0x200B,'Zero width space'],[0x200C,'Zero width non-joiner'],[0x200D,'Zero width joiner'],[0x2060,'Word joiner'],
+    [0x2061,'Function application'],[0x2062,'Invisible times'],[0x2063,'Invisible separator'],[0x2064,'Invisible plus'],
+    [0xFEFF,'BOM / ZW no-break space'],[0x200E,'Left-to-right mark'],[0x200F,'Right-to-left mark'],[0x061C,'Arabic letter mark'],
+    [0x2066,'LTR isolate'],[0x2067,'RTL isolate'],[0x2068,'First strong isolate'],[0x2069,'Pop directional isolate'],
+    [0x206A,'Inhibit symmetric swapping (deprecated)'],[0x206B,'Activate symmetric swapping (deprecated)'],[0x206C,'Inhibit Arabic shaping (deprecated)'],
+    [0x206D,'Activate Arabic shaping (deprecated)'],[0x206E,'National digit shapes (deprecated)'],[0x206F,'Nominal digit shapes (deprecated)'],
+    [0x180E,'Mongolian vowel separator'],[0xFFF9,'Interlinear annotation anchor'],[0xFFFA,'Interlinear annotation separator'],[0xFFFB,'Interlinear annotation terminator'],
+    [0x1BCA0,'Shorthand format letter overlap'],[0x1BCA1,'Shorthand format continuing overlap'],[0x1BCA2,'Shorthand format down step'],[0x1BCA3,'Shorthand format up step'],
+    [0x00AD,'Soft hyphen'],[0x034F,'Combining grapheme joiner (Mn)'],
+  ]},
+  { id: 'B', title: 'B · Invisible combining marks (Mn)', desc: 'Survive Cf stripping. Attach to the previous grapheme, so may count as 0 graphemes.', items: [
+    ...range(0xFE00, 0xFE0F).map(cp => [cp, 'Variation selector ' + (cp - 0xFE00 + 1)]),
+    [0x180B,'Mongolian FVS1'],[0x180C,'Mongolian FVS2'],[0x180D,'Mongolian FVS3'],[0x180F,'Mongolian FVS4'],
+    [0x17B4,'Khmer inherent vowel Aq'],[0x17B5,'Khmer inherent vowel Aa'],
+    [0x1D167,'Musical symbol combining tremolo-1'],
+    ...range(0xE0100, 0xE01EF).map(cp => [cp, 'Variation selector ' + (cp - 0xE0100 + 17)]),
+  ]},
+  { id: 'C', title: 'C · Invisible letters / fillers (Lo, Zs-like)', desc: 'Survive Cf and Mn strips; many pass isalpha()/\\w. Rendering risk: some fonts draw boxes.', items: [
+    [0x115F,'Hangul choseong filler'],[0x1160,'Hangul jungseong filler'],[0x3164,'Hangul filler'],[0xFFA0,'Halfwidth Hangul filler'],
+    [0x2800,'Braille pattern blank'],[0x00A0,'No-break space'],[0x1680,'Ogham space mark'],
+    ...range(0x2000, 0x200A).map(cp => [cp, 'Space ' + hex(cp)]),
+    [0x202F,'Narrow no-break space'],[0x205F,'Medium mathematical space'],[0x3000,'Ideographic space'],
+    [0x2028,'Line separator'],[0x2029,'Paragraph separator'],[0x2800,'Braille blank'],
+  ]},
+  { id: 'D', title: 'D · Astral tag characters (Cf, 2 UTF-16 units each)', desc: 'Used by the hidden injection suffix. Cost 2 units per char.', items: [
+    [0xE0001,'Language tag'],
+    ...range(0xE0020, 0xE007F).map(cp => [cp, cp === 0xE007F ? 'Cancel tag' : 'Tag ' + (cp - 0xE0000 <= 0x7E ? JSON.stringify(String.fromCharCode(cp - 0xE0000)) : '')]),
+  ]},
+  { id: 'E', title: 'E · Experimental (bidi overrides / noncharacters)', desc: 'May break editing, copy, or file upload. Test before shipping.', items: [
+    [0x202A,'LTR embedding'],[0x202B,'RTL embedding'],[0x202C,'Pop directional formatting'],[0x202D,'LTR override'],[0x202E,'RTL override'],
+    ...range(0xFDD0, 0xFDEF).map(cp => [cp, 'Noncharacter']),
+    [0xFFFE,'Noncharacter'],[0xFFFF,'Noncharacter'],[0x1FFFE,'Noncharacter'],[0x10FFFF,'Noncharacter'],
+  ]},
+];
+
+// Dedupe within each category by code point.
+CATEGORIES.forEach(c => { const seen = new Set(); c.items = c.items.filter(([cp]) => !seen.has(cp) && seen.add(cp)); });
+
+const GC_LIST = ['Cf','Mn','Mc','Me','Lo','Lu','Ll','Lm','Zs','Zl','Zp','Cc','Co','Cs','Cn','So','Sk','Sm','Po','Pd','Nd'];
+function generalCategory(ch) {
+  for (const gc of GC_LIST) { try { if (new RegExp('^\\p{' + gc + '}$', 'u').test(ch)) return gc; } catch (e) {} }
+  return '??';
+}
+
+const canvas = document.createElement('canvas').getContext('2d');
+canvas.font = '18px -apple-system, "Segoe UI", sans-serif';
+const baseWidth = canvas.measureText('AB').width;
+function widthDelta(ch) { return canvas.measureText('A' + ch + 'B').width - baseWidth; }
+
+const utf16 = ch => ch.length;
+const segmenter = typeof Intl !== 'undefined' && Intl.Segmenter ? new Intl.Segmenter(undefined, { granularity: 'grapheme' }) : null;
+const graphemeCount = s => segmenter ? [...segmenter.segment(s)].length : [...s].length;
+const utf8Bytes = s => new TextEncoder().encode(s).length;
+
+const pool = new Map(); // cp -> category id
+
+function yn(v, goodWhenTrue) { const good = v === goodWhenTrue; return '<span class="' + (good ? 'yes' : 'no') + '">' + (v ? 'yes' : 'no') + '</span>'; }
+
+function buildCatalog() {
+  const root = document.getElementById('catalog');
+  CATEGORIES.forEach(cat => {
+    const wrap = document.createElement('div');
+    wrap.innerHTML = '<h3 style="margin:18px 0 2px">' + cat.title + ' <span class="tag">' + cat.items.length + ' chars</span></h3><p class="note">' + cat.desc + '</p>';
+    const controls = document.createElement('div'); controls.className = 'row';
+    const addAll = document.createElement('button'); addAll.textContent = 'Add all to pool';
+    const rmAll = document.createElement('button'); rmAll.textContent = 'Remove all';
+    controls.append(addAll, rmAll);
+    wrap.appendChild(controls);
+
+    const big = cat.items.length > 40;
+    const container = document.createElement('div');
+    if (big) {
+      container.className = 'grid';
+      cat.items.forEach(([cp, name]) => {
+        const cell = document.createElement('div'); cell.className = 'cell'; cell.dataset.cp = cp; cell.title = name;
+        const s = document.createElement('span'); s.className = 'sample'; s.textContent = 'A' + String.fromCodePoint(cp) + 'B';
+        cell.append(s, document.createElement('br'), document.createTextNode(hex(cp)));
+        cell.onclick = () => togglePool(cp, cat.id);
+        container.appendChild(cell);
+      });
+    } else {
+      const scroll = document.createElement('div'); scroll.className = 'scroll';
+      const tbl = document.createElement('table');
+      tbl.innerHTML = '<thead><tr><th></th><th>Sample</th><th>Code point</th><th>Name</th><th>GC</th><th>UTF-16</th><th>Δ width</th><th>Cf-strip</th><th>Mn-strip</th><th>NFKC</th><th>ASCII-only</th><th>\\w</th><th>\\p{L}</th></tr></thead>';
+      const tb = document.createElement('tbody');
+      cat.items.forEach(([cp, name]) => {
+        const ch = String.fromCodePoint(cp);
+        const gc = generalCategory(ch);
+        const d = widthDelta(ch);
+        const survivesCf = !/\p{Cf}/u.test(ch);
+        const survivesMn = !/\p{Mn}/u.test(ch);
+        const nfkcStable = ch.normalize('NFKC') === ch;
+        const survivesAscii = /[\x00-\x7F]/.test(ch);
+        const tr = document.createElement('tr'); tr.dataset.cp = cp; tr.style.cursor = 'pointer';
+        tr.innerHTML =
+          '<td><input type="checkbox"></td>' +
+          '<td><span class="sample">A' + ch.replace(/[&<>]/g, '') + 'B</span></td>' +
+          '<td class="mono">' + hex(cp) + '</td><td>' + name + '</td>' +
+          '<td><span class="tag">' + gc + '</span></td><td class="mono">' + ch.length + '</td>' +
+          '<td class="mono ' + (Math.abs(d) < 0.01 ? 'yes' : 'maybe') + '">' + d.toFixed(2) + '</td>' +
+          '<td>' + (survivesCf ? '<span class="yes">survives</span>' : '<span class="no">removed</span>') + '</td>' +
+          '<td>' + (survivesMn ? '<span class="yes">survives</span>' : '<span class="no">removed</span>') + '</td>' +
+          '<td>' + (nfkcStable ? '<span class="yes">stable</span>' : '<span class="no">folds</span>') + '</td>' +
+          '<td>' + (survivesAscii ? '<span class="yes">kept</span>' : '<span class="no">removed</span>') + '</td>' +
+          '<td>' + (/\w/.test(ch) ? 'match' : '–') + '</td><td>' + (/\p{L}/u.test(ch) ? 'match' : '–') + '</td>';
+        tr.onclick = e => { if (e.target.tagName !== 'INPUT') togglePool(cp, cat.id); else togglePool(cp, cat.id, e.target.checked); };
+        tb.appendChild(tr);
+      });
+      tbl.appendChild(tb); scroll.appendChild(tbl); container.appendChild(scroll);
+    }
+    wrap.appendChild(container);
+    addAll.onclick = () => { cat.items.forEach(([cp]) => togglePool(cp, cat.id, true, true)); refreshPoolUI(); };
+    rmAll.onclick = () => { cat.items.forEach(([cp]) => togglePool(cp, cat.id, false, true)); refreshPoolUI(); };
+    root.appendChild(wrap);
+  });
+}
+
+function togglePool(cp, catId, force, batch) {
+  const on = force === undefined ? !pool.has(cp) : force;
+  if (on) pool.set(cp, catId); else pool.delete(cp);
+  if (!batch) refreshPoolUI();
+}
+
+function refreshPoolUI() {
+  document.querySelectorAll('[data-cp]').forEach(el => {
+    const on = pool.has(Number(el.dataset.cp));
+    el.classList.toggle('sel', on);
+    const cb = el.querySelector('input[type=checkbox]'); if (cb) cb.checked = on;
+    if (el.tagName === 'TR') el.style.background = on ? '#18233b' : '';
+  });
+  const units = [...pool.keys()].reduce((n, cp) => n + (cp > 0xFFFF ? 2 : 1), 0);
+  document.getElementById('poolInfo').textContent = 'pool: ' + pool.size + ' chars (' + units + ' units total)';
+}
+
+function statBox(label, value, cls) { return '<div class="stat"><span>' + label + '</span><b class="' + (cls || '') + '">' + value + '</b></div>'; }
+
+function renderStats(el, text, threshold) {
+  const units = utf16(text);
+  const over = threshold ? units > threshold : false;
+  el.innerHTML =
+    statBox('UTF-16 units (JS .length)', units.toLocaleString(), threshold ? (over ? 'over' : 'under') : '') +
+    statBox('Code points', [...text].length.toLocaleString()) +
+    statBox('Graphemes', graphemeCount(text).toLocaleString()) +
+    statBox('UTF-8 bytes', utf8Bytes(text).toLocaleString()) +
+    statBox('Lines', (text ? text.split(/\r\n|\r|\n/).length : 0).toLocaleString()) +
+    (threshold ? statBox('vs. threshold', (units - threshold >= 0 ? '+' : '') + (units - threshold).toLocaleString(), over ? 'over' : 'under') : '');
+}
+
+function build() {
+  const base = document.getElementById('baseText').value;
+  const target = Number(document.getElementById('targetLen').value) || 0;
+  const mode = document.getElementById('poolMode').value;
+  const cps = [...pool.keys()];
+  if (!cps.length) { document.getElementById('payload').value = base; updatePayloadStats(); return; }
+
+  const baseGraphemes = segmenter ? [...segmenter.segment(base)].map(s => s.segment) : [...base];
+  const gaps = baseGraphemes.length + 1;
+  const budget = Math.max(0, target - base.length);
+
+  const byCat = {};
+  cps.forEach(cp => (byCat[pool.get(cp)] ||= []).push(cp));
+  const catIds = Object.keys(byCat);
+
+  const inserts = [];
+  let used = 0, i = 0;
+  while (used < budget) {
+    let cp;
+    if (mode === 'random') cp = cps[Math.floor(Math.random() * cps.length)];
+    else if (mode === 'cycle') cp = cps[i % cps.length];
+    else { const list = byCat[catIds[i % catIds.length]]; cp = list[Math.floor(Math.random() * list.length)]; }
+    const cost = cp > 0xFFFF ? 2 : 1;
+    i++;
+    if (used + cost > budget) { if (cost === 2 && used + 1 <= budget) { cp = cps.find(c => c <= 0xFFFF); if (cp === undefined) break; used += 1; inserts.push(String.fromCodePoint(cp)); continue; } break; }
+    used += cost; inserts.push(String.fromCodePoint(cp));
+  }
+
+  const perGap = Math.floor(inserts.length / gaps);
+  let extra = inserts.length % gaps, idx = 0, out = '';
+  for (let g = 0; g < gaps; g++) {
+    const n = perGap + (extra-- > 0 ? 1 : 0);
+    out += inserts.slice(idx, idx + n).join(''); idx += n;
+    if (g < baseGraphemes.length) out += baseGraphemes[g];
+  }
+  document.getElementById('payload').value = out;
+  updatePayloadStats();
+}
+
+function updatePayloadStats() {
+  const text = document.getElementById('payload').value;
+  const threshold = Number(document.getElementById('threshold').value) || 0;
+  renderStats(document.getElementById('payloadStats'), text, threshold);
+}
+
+function analyze(text) {
+  renderStats(document.getElementById('analyzeStats'), text, Number(document.getElementById('threshold').value) || 0);
+  const counts = new Map();
+  for (const ch of text) counts.set(ch.codePointAt(0), (counts.get(ch.codePointAt(0)) || 0) + 1);
+  const known = new Map();
+  CATEGORIES.forEach(c => c.items.forEach(([cp, name]) => known.set(cp, name)));
+  const tb = document.querySelector('#cpTable tbody'); tb.innerHTML = '';
+  [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 400).forEach(([cp, n]) => {
+    const ch = String.fromCodePoint(cp);
+    const tr = document.createElement('tr');
+    const vis = cp > 0x20 && cp < 0x7F ? ' "' + ch + '"' : '';
+    tr.innerHTML = '<td class="mono">' + hex(cp) + vis.replace(/[&<>]/g, '') + '</td><td>' + n.toLocaleString() + '</td><td><span class="tag">' + generalCategory(ch) + '</span></td><td>' + ch.length + '</td><td>' + (known.get(cp) || '') + '</td>';
+    tb.appendChild(tr);
+  });
+}
+
+function buildHomoglyphs() {
+  const map = {
+    A:'АΑ', B:'ВΒ', C:'СϹᏟ', E:'ЕΕᎬ', H:'НΗᎻ', I:'ІΙӀ', J:'ЈᎫ', K:'КΚ', M:'МΜᎷ', N:'Ν', O:'ОΟ', P:'РΡᏢ', S:'ЅᏚ', T:'ТΤᎢ', X:'ХΧ', Y:'ΥҮ', Z:'ΖᏃ',
+    a:'аɑ', c:'сϲ', e:'е', i:'і', j:'ј', o:'оοᴏ', p:'р', s:'ѕ', v:'ν', x:'х', y:'у', '-':'‐‑',
+  };
+  const tb = document.querySelector('#homoTable tbody');
+  Object.entries(map).forEach(([latin, cands]) => {
+    const tr = document.createElement('tr');
+    const cells = [...cands].map(c => {
+      const stable = c.normalize('NFKC') === c;
+      return '<span class="sample" title="' + hex(c.codePointAt(0)) + (stable ? ' · NFKC-stable' : ' · folds under NFKC') + '">' + c + '</span> <span class="mono ' + (stable ? 'yes' : 'no') + '" style="font-size:11px">' + hex(c.codePointAt(0)) + '</span>';
+    });
+    tr.innerHTML = '<td class="mono" style="font-size:16px">' + latin + '</td><td>' + cells.join(' &nbsp; ') + '</td>';
+    tb.appendChild(tr);
+  });
+}
+
+document.getElementById('buildBtn').onclick = build;
+// Union of site `emptyChars` and extension `emptyChars` (the extension adds the tag block).
+const PROD_CPS = [0x200B, 0x200C, 0x200D, 0x2060, 0x2061, 0x2062, 0x2063, 0x2064, 0xFEFF, 0x034F, ...range(0xFE00, 0xFE0F), ...range(0xE0020, 0xE007F)];
+// Site `emptyCharsSafe` (VS16 is excluded because it breaks on iOS).
+const IPAD_CPS = [0x200B, 0xFEFF, 0x2061, 0x2062, 0x2063, 0x2064, ...range(0xFE00, 0xFE0E)];
+function setPool(cps) {
+  pool.clear();
+  cps.forEach(cp => {
+    const cat = CATEGORIES.find(c => c.items.some(([x]) => x === cp));
+    pool.set(cp, cat ? cat.id : '?');
+  });
+  refreshPoolUI();
+}
+document.getElementById('prodPool').onclick = () => setPool(PROD_CPS);
+document.getElementById('ipadPool').onclick = () => setPool(IPAD_CPS);
+document.getElementById('clearPool').onclick = () => { pool.clear(); refreshPoolUI(); };
+document.getElementById('copyBtn').onclick = async () => {
+  const t = document.getElementById('payload').value;
+  try { await navigator.clipboard.writeText(t); } catch (e) { const ta = document.getElementById('payload'); ta.select(); document.execCommand('copy'); }
+};
+document.getElementById('payload').addEventListener('input', updatePayloadStats);
+document.getElementById('threshold').addEventListener('input', () => { updatePayloadStats(); analyze(document.getElementById('analyzeInput').value); });
+const analyzeInput = document.getElementById('analyzeInput');
+analyzeInput.addEventListener('input', () => analyze(analyzeInput.value));
+analyzeInput.addEventListener('paste', e => {
+  const cd = e.clipboardData; if (!cd) return;
+  const plain = cd.getData('text/plain'), html = cd.getData('text/html');
+  document.getElementById('clipInfo').textContent =
+    'Clipboard flavors: ' + [...cd.types].join(', ') + ' | text/plain: ' + plain.length.toLocaleString() + ' units | text/html: ' + html.length.toLocaleString() + ' units';
+});
+
+buildCatalog();
+buildHomoglyphs();
+refreshPoolUI();
+updatePayloadStats();
+analyze('');
+</script>
+</body>
+</html>
