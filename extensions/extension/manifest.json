@@ -1,22 +1,24 @@
 {
   "manifest_version": 3,
   "name": "Gibberifier",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Right-click selected text to convert it into gibberish using invisible Unicode characters",
   "permissions": [
     "activeTab",
+    "clipboardRead",
     "contextMenus",
     "scripting"
   ],
   "host_permissions": [],
-  "permissions_justifications": {
-    "activeTab": "Required to access and modify the selected text on the current page when you use the right-click context menu to gibberify text.",
-    "contextMenus": "Required to add a \"Gibberify Selected Text\" option to the right-click context menu when users select text on any webpage. This provides an easy way for users to trigger the gibberification process.",
-    "scripting": "Required to inject the text processing script into the active tab when you trigger the gibberify action."
-  },
   "background": {
     "service_worker": "dist/background.js"
   },
+  "content_scripts": [
+    {
+      "matches": ["https://docs.google.com/document/*"],
+      "js": ["dist/gibberify-core.js", "dist/content.js"]
+    }
+  ],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
